@@ -612,6 +612,7 @@ def export_project(project_name):
     pages_order = data.get("pages", [])
     separator_template = data.get("separator", None)  # None = 区切りなし
     para_separator = data.get("para_separator", None)   # None = 段落区切り無効, '' = 空行
+    use_indent = data.get("indent", False)  # 段落先頭に一字下げ（全角スペース）を付与
 
     # If no order given, use saved order or filename sort
     if not pages_order:
@@ -673,7 +674,11 @@ def export_project(project_name):
                 ov = overlay.get(bid, {})
                 if para_separator is not None and ov.get("paragraph_break") and page_lines:
                     page_lines.append(para_separator if para_separator else "")
-                page_lines.append(b["text"])
+                text = b["text"]
+                # 一字下げ：¶ブロックの先頭に全角スペースを付与（まだない場合のみ）
+                if use_indent and ov.get("paragraph_break") and not text.startswith("\u3000"):
+                    text = "\u3000" + text
+                page_lines.append(text)
             parts.append("\n".join(page_lines))
         content = "\n".join(parts)
         export_file = project_path / f"{project_name}_export.txt"

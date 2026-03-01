@@ -685,6 +685,7 @@
 
   /* ── Text Preview Panel ── */
   .text-preview-panel {
+    border-top: 1px solid var(--border);
     background: var(--bg2);
     flex-shrink: 0;
     display: flex;
@@ -695,17 +696,6 @@
     transition: height 0.2s;
   }
   .text-preview-panel.collapsed { height: 36px !important; min-height: 36px; overflow: hidden; }
-  .text-preview-resize-handle {
-    height: 5px;
-    width: 100%;
-    cursor: row-resize;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.15s;
-  }
-  .text-preview-resize-handle:hover,
-  .text-preview-resize-handle.dragging { background: var(--accent2); }
-  .text-preview-panel.collapsed .text-preview-resize-handle { cursor: pointer; }
   .text-preview-header {
     display: flex;
     align-items: center;
@@ -931,6 +921,14 @@
           <label class="form-label" id="labelParaSepText">段落区切り文字</label>
           <input class="separator-input" id="paraSeparatorText" value="" placeholder="（空行を挿入）" oninput="updateExportPreview()">
           <div style="font-size:9px;color:var(--text3);margin-top:3px" id="paraSepNote">空欄 = 空行を挿入</div>
+        </div>
+
+        <div class="form-group" style="margin:0;border-top:1px solid var(--border);padding-top:10px">
+          <div class="toggle-row">
+            <input type="checkbox" id="exportIndent" onchange="updateExportPreview()">
+            <label for="exportIndent" id="labelIndentToggle">¶ ブロックの先頭に一字下げ</label>
+          </div>
+          <div style="font-size:9px;color:var(--text3);margin-top:3px" id="indentNote">段落先頭に全角スペースを自動付与</div>
         </div>
       </div>
 
@@ -1244,10 +1242,11 @@ function renderProjectView() {
           </div>
         </div>
       </div>
+      <div class="resizer resizer-horizontal" id="resizerBottom" onmousedown="startResize(event,'bottom')" style="display:none"></div>
+      <div class="resizer resizer-horizontal" id="resizerBottom"
+           style="display:none"
+           onmousedown="startResizeBottom(event)"></div>
       <div class="text-preview-panel collapsed" id="textPreviewPanel">
-        <div class="text-preview-resize-handle" id="previewResizeHandle"
-             onmousedown="startResizeBottom(event)"
-             onclick="event.stopPropagation()"></div>
         <div class="text-preview-header" onclick="toggleTextPreview()">
           <span class="text-preview-title" id="textPreviewTitle">📋 Text Preview</span>
           <button class="btn" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();reloadTextPreview()" id="reloadPreviewBtn" title="再読込み">↺</button>
@@ -1911,7 +1910,10 @@ function getOrCreateOverlay(blockId) {
 
 function saveText(blockId, text) {
   const ov = getOrCreateOverlay(blockId);
-  ov.text = text.trim();
+  // 先頭の全角スペース（段落字下げ）を保持しつつ、末尾の空白のみ除去
+  const leadingSpaces = text.match(/^　*/)[0];
+  const trimmed = text.trimEnd();
+  ov.text = leadingSpaces + trimmed.slice(leadingSpaces.length);
   persistOverlay();
   updateBlockStyle(blockId);
 }
@@ -2111,7 +2113,7 @@ function getExportPages() {
   return state.pages.slice(start, end + 1);
 }
 
-function buildPageText(blocks, overlay, useParaSep, paraSepStr) {
+function buildPageText(blocks, overlay, useParaSep, paraSepStr, useIndent) {
   const lines = [];
   for (const block of blocks) {
     const bid = String(block.id);
@@ -2119,8 +2121,12 @@ function buildPageText(blocks, overlay, useParaSep, paraSepStr) {
     if (useParaSep && ov.paragraph_break && lines.length > 0) {
       lines.push(paraSepStr !== '' ? paraSepStr : '');
     }
-    const text = ov.text !== undefined ? ov.text
-                 : (block._text !== undefined ? block._text : (block.text || ''));
+    let text = ov.text !== undefined ? ov.text
+               : (block._text !== undefined ? block._text : (block.text || ''));
+    // 一字下げ：¶ブロックの先頭に全角スペースを追加（まだない場合のみ）
+    if (useIndent && ov.paragraph_break && !text.startsWith('　')) {
+      text = '　' + text;
+    }
     if (text.trim()) lines.push(text);
   }
   return lines.join('\n');
@@ -2132,6 +2138,7 @@ async function updateExportPreview() {
   const sepTemplate = document.getElementById('separatorText').value;
   const useParaSep = document.getElementById('exportParaSeparator').checked;
   const paraSepStr = document.getElementById('paraSeparatorText').value;
+  const useIndent = document.getElementById('exportIndent').checked;
   const pages = getExportPages();
 
   if (fmt === 'json') {
@@ -2154,7 +2161,7 @@ async function updateExportPreview() {
         const data = await res.json();
         const overlay = data.overlay || {};
         const blocks = data.ocr.contents?.[0] || [];
-        parts.push(buildPageText(blocks, overlay, useParaSep, paraSepStr));
+        parts.push(buildPageText(blocks, overlay, useParaSep, paraSepStr, useIndent));
       }
     } catch(e) {}
   }
@@ -2181,6 +2188,7 @@ async function doExport() {
   const sepTemplate = document.getElementById('separatorText').value;
   const useParaSep = document.getElementById('exportParaSeparator').checked;
   const paraSepStr = document.getElementById('paraSeparatorText').value;
+  const useIndent = document.getElementById('exportIndent').checked;
   const pages = getExportPages();
   closeModal('exportModal');
 
@@ -2192,6 +2200,7 @@ async function doExport() {
       pages: pages.map(p => p.name),
       separator: useSep ? sepTemplate : null,
       para_separator: useParaSep ? paraSepStr : null,
+      indent: useIndent,
     }),
   });
   if (res.ok) {
@@ -2229,6 +2238,8 @@ function updateExportModalLang() {
   set('labelParaSepToggle', isEn ? '¶ Apply paragraph breaks' : '¶ 段落区切りを反映');
   set('labelParaSepText', isEn ? 'Paragraph separator' : '段落区切り文字');
   set('paraSepNote', isEn ? 'Empty = insert blank line' : '空欄 = 空行を挿入');
+  set('labelIndentToggle', isEn ? '¶ Add indent to paragraph start' : '¶ ブロックの先頭に一字下げ');
+  set('indentNote', isEn ? 'Add full-width space before paragraph blocks' : '段落先頭に全角スペースを自動付与');
   const paraPlaceholder = document.getElementById('paraSeparatorText');
   if (paraPlaceholder) paraPlaceholder.placeholder = isEn ? '(blank line)' : '（空行を挿入）';
 }
@@ -2312,30 +2323,17 @@ document.getElementById('newProjectName').addEventListener('keydown', e => {
 // ── Text Preview Panel Resize ────────────────────────────────────────────────
 function startResizeBottom(e) {
   e.preventDefault();
-  e.stopPropagation();
-  const handle = document.getElementById('previewResizeHandle');
+  const resizer = document.getElementById('resizerBottom');
   const panel = document.getElementById('textPreviewPanel');
   const contentArea = panel.parentElement;
   const startY = e.clientY;
-  let moved = false;
-
-  if (panel.classList.contains('collapsed')) {
-    panel.classList.remove('collapsed');
-    textPreviewOpen = true;
-    const toggle = document.getElementById('textPreviewToggle');
-    if (toggle) toggle.textContent = '▼';
-    panel.style.height = '220px';
-    panel.style.minHeight = '36px';
-    panel.style.transition = 'none';
-  }
-
   const startH = panel.offsetHeight;
   const totalH = contentArea.offsetHeight;
-  handle.classList.add('dragging');
 
-  function onMove(ev) {
-    moved = true;
-    const delta = startY - ev.clientY;
+  resizer.classList.add('dragging');
+
+  function onMove(e) {
+    const delta = startY - e.clientY;  // 上にドラッグ = パネル拡大
     const newH = Math.min(Math.max(80, startH + delta), totalH - 100);
     panel.style.height = newH + 'px';
     panel.style.minHeight = newH + 'px';
@@ -2343,10 +2341,9 @@ function startResizeBottom(e) {
   }
 
   function onUp() {
-    handle.classList.remove('dragging');
+    resizer.classList.remove('dragging');
     document.removeEventListener('mousemove', onMove);
     document.removeEventListener('mouseup', onUp);
-    if (!moved) toggleTextPreview();
   }
 
   document.addEventListener('mousemove', onMove);
@@ -2369,9 +2366,13 @@ function buildPreviewText() {
 function initTextPreview() {
   const panel = document.getElementById('textPreviewPanel');
   if (!panel) return;
+  // ページロード時は展開して表示
   panel.classList.remove('collapsed');
   textPreviewOpen = true;
   document.getElementById('textPreviewToggle').textContent = '▼';
+  // リサイザーを表示
+  const rb = document.getElementById('resizerBottom');
+  if (rb) rb.style.display = '';
   reloadTextPreview();
 }
 
@@ -2387,6 +2388,8 @@ function toggleTextPreview() {
   textPreviewOpen = !textPreviewOpen;
   panel.classList.toggle('collapsed', !textPreviewOpen);
   document.getElementById('textPreviewToggle').textContent = textPreviewOpen ? '▼' : '▲';
+  const rb = document.getElementById('resizerBottom');
+  if (rb) rb.style.display = textPreviewOpen ? '' : 'none';
 }
 
 async function copyTextPreview() {
