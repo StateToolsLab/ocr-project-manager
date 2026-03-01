@@ -378,6 +378,10 @@ def run_ocr_single(input_file, output_dir, job_id):
     corrected_file = fix_image_orientation(input_file)
     ocr_source = corrected_file if corrected_file else input_file
 
+    # NDLOCRは出力先フォルダが存在しないと失敗するため明示的に作成
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     try:
         env = os.environ.copy()
         env["PYTHONPATH"] = str(NDLOCR_SRC)
