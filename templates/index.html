@@ -1,0 +1,2476 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OCR Project Manager</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600&family=JetBrains+Mono:wght@300;400&display=swap');
+
+  :root {
+    --bg: #0f0f0f;
+    --bg2: #161616;
+    --bg3: #1e1e1e;
+    --border: #2a2a2a;
+    --border2: #333;
+    --text: #e8e0d5;
+    --text2: #9a9080;
+    --text3: #5a5248;
+    --accent: #c8a96e;
+    --accent2: #8b6f47;
+    --warn: #d4826a;
+    --ok: #6a9d6e;
+    --blue: #6a8db0;
+    --font-serif: 'Noto Serif JP', serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-serif);
+    font-size: 14px;
+    line-height: 1.6;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 20px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .logo {
+    font-size: 13px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 300;
+    text-transform: uppercase;
+  }
+  .logo span { color: var(--text3); }
+  .header-path {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .header-path .sep { color: var(--border2); margin: 0 4px; }
+  .header-path .active { color: var(--text2); }
+
+  /* ── Layout ── */
+  .layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 240px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .sidebar-title {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  .btn-icon {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    cursor: pointer;
+    width: 22px; height: 22px;
+    border-radius: 4px;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  .project-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .project-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+  }
+  .project-item:hover { background: var(--bg3); }
+  .project-item.active {
+    border-left-color: var(--accent);
+    background: var(--bg3);
+  }
+  .project-name {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .project-meta {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+    margin-top: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+  }
+
+  /* ── Main ── */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Welcome Screen ── */
+  .welcome {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text3);
+  }
+  .welcome-icon { font-size: 48px; opacity: 0.3; }
+  .welcome-text { font-size: 14px; }
+
+  /* ── Project View ── */
+  .project-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .project-toolbar {
+    padding: 10px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+  .project-toolbar-title {
+    font-size: 14px;
+    color: var(--text);
+    margin-right: auto;
+  }
+
+  .btn {
+    padding: 5px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: var(--font-serif);
+    transition: all 0.15s;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+  .btn:hover { border-color: var(--accent2); color: var(--text); }
+  .btn-primary {
+    background: var(--accent2);
+    border-color: var(--accent);
+    color: var(--text);
+  }
+  .btn-primary:hover { background: var(--accent); }
+  .btn-danger { border-color: var(--warn); color: var(--warn); }
+  .btn-danger:hover { background: var(--warn); color: #fff; }
+
+  /* ── Content area with page list + editor ── */
+  .content-area {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* ── Page List Panel ── */
+  .page-panel {
+    width: 200px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .page-panel-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+  }
+  .page-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .page-item:hover { background: var(--bg3); }
+  .page-item.active {
+    background: var(--bg3);
+    border-left-color: var(--blue);
+  }
+  .page-item-name {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
+  }
+  .page-item-status {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text3);
+  }
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-right: 4px;
+  }
+  .dot-done { background: var(--ok); }
+  .dot-pending { background: var(--accent2); }
+  .dot-none { background: var(--border2); }
+
+  /* drag handle */
+  .drag-handle {
+    cursor: grab;
+    color: var(--text3);
+    margin-right: 6px;
+    font-size: 10px;
+  }
+
+  /* ── Editor Panel ── */
+  .editor-panel {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+  }
+
+  /* Image pane */
+  .image-pane {
+    flex: 1;
+    overflow: auto;
+    background: #080808;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 16px;
+  }
+  .image-wrapper {
+    position: relative;
+    display: inline-block;
+    border: 1px solid var(--border);
+  }
+  .image-wrapper img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .image-overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .overlay-rect {
+    stroke-width: 2;
+    transition: all 0.2s;
+    pointer-events: all;
+    cursor: pointer;
+  }
+  .overlay-rect.warn { stroke: #d4826a; fill: #d4826a; }
+  .overlay-rect.checked { stroke: #6a9d6e; fill: #6a9d6e; }
+  .overlay-rect.normal { stroke: #6a8db0; fill: #6a8db0; opacity: 0; }
+  .overlay-rect.normal:hover { opacity: 0.3; }
+  .overlay-rect.flash { stroke: #fff; fill: #fff; opacity: 0.6 !important; }
+  .overlay-rect.manual { stroke: #6a8db0; fill: #6a8db0; }
+  #drawRect {
+    position: absolute;
+    border: 2px dashed #c8a96e;
+    background: rgba(200,169,110,0.1);
+    pointer-events: none;
+    display: none;
+  }
+  .image-wrapper.drawing { cursor: crosshair; }
+
+  /* OCR pane */
+  .ocr-pane {
+    width: 380px;
+    flex-shrink: 0;
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .ocr-pane-header {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    background: var(--bg2);
+  }
+  .ocr-pane-title {
+    font-size: 11px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-right: auto;
+  }
+  .threshold-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .threshold-input {
+    width: 48px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  .block-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .block-item {
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg2);
+    transition: all 0.15s;
+  }
+  .block-item:hover { border-color: var(--border2); }
+  .block-item.warn {
+    border-color: var(--warn);
+    background: rgba(212, 130, 106, 0.05);
+  }
+  .block-item.checked {
+    border-color: var(--ok);
+    background: rgba(106, 157, 110, 0.05);
+  }
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+  }
+  .block-id {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--text3);
+    background: var(--bg3);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+  .block-conf {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+  .conf-ok { color: var(--ok); }
+  .conf-warn { color: var(--warn); }
+  .block-check {
+    margin-left: auto;
+    accent-color: var(--ok);
+    cursor: pointer;
+    width: 14px; height: 14px;
+  }
+
+  .block-text {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    outline: none;
+    width: 100%;
+    font-family: var(--font-serif);
+    cursor: text;
+    min-height: 20px;
+  }
+  .block-text:focus {
+    background: var(--bg3);
+    border-radius: 2px;
+    padding: 2px 4px;
+  }
+
+  /* warn list */
+  .warn-summary {
+    padding: 8px 12px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .warn-count { color: var(--warn); font-weight: 600; }
+
+  /* ── Empty states ── */
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .empty-icon { font-size: 32px; opacity: 0.3; }
+
+  /* ── Modals ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    display: none;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    padding: 24px;
+    width: 400px;
+    max-width: 90vw;
+  }
+  .modal-title {
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 16px;
+    letter-spacing: 0.1em;
+  }
+  .form-group {
+    margin-bottom: 14px;
+  }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    color: var(--text3);
+    margin-bottom: 4px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .form-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 4px;
+    font-family: var(--font-serif);
+    font-size: 13px;
+    outline: none;
+  }
+  .form-input:focus { border-color: var(--accent2); }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 18px;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: var(--text);
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: all 0.2s;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .toast.success { border-color: var(--ok); }
+  .toast.error { border-color: var(--warn); }
+
+  /* ── Export Modal ── */
+  .modal.modal-wide {
+    width: 720px;
+    max-width: 95vw;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .export-layout {
+    display: flex;
+    gap: 16px;
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .export-settings {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .export-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+  .export-preview-label {
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .export-preview-area {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.8;
+    padding: 10px;
+    resize: none;
+    border-radius: 2px;
+    overflow-y: auto;
+    min-height: 300px;
+  }
+  .export-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .export-range input[type=number] {
+    width: 52px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 4px 6px;
+    font-size: 11px;
+    border-radius: 2px;
+    text-align: center;
+  }
+  .separator-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    color: var(--text);
+    padding: 5px 8px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    border-radius: 2px;
+  }
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+  .toggle-row input[type=checkbox] { cursor: pointer; }
+
+  /* ── Resizer ── */
+  .resizer-horizontal {
+    height: 5px;
+    width: 100%;
+    cursor: row-resize;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .resizer-horizontal:hover, .resizer-horizontal.dragging { background: var(--accent2); }
+  .resizer {
+    width: 4px;
+    background: var(--border);
+    cursor: col-resize;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .resizer:hover, .resizer.dragging { background: var(--accent2); }
+
+  /* ── Upload zone ── */
+  .upload-zone {
+    border: 1px dashed var(--border2);
+    border-radius: 6px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text3);
+    font-size: 12px;
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--accent2); color: var(--text2); }
+
+
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ── Text Preview Panel ── */
+  .text-preview-panel {
+    background: var(--bg2);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    height: 220px;
+    min-height: 36px;
+    max-height: 80vh;
+    transition: height 0.2s;
+  }
+  .text-preview-panel.collapsed { height: 36px !important; min-height: 36px; overflow: hidden; }
+  .text-preview-resize-handle {
+    height: 5px;
+    width: 100%;
+    cursor: row-resize;
+    background: var(--border);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+  .text-preview-resize-handle:hover,
+  .text-preview-resize-handle.dragging { background: var(--accent2); }
+  .text-preview-panel.collapsed .text-preview-resize-handle { cursor: pointer; }
+  .text-preview-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+  }
+  .text-preview-header:hover { background: var(--bg3); }
+  .text-preview-title {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+    flex: 1;
+  }
+  .text-preview-body {
+    flex: 1;
+    overflow: hidden;
+    padding: 8px 12px;
+    display: flex;
+    gap: 8px;
+  }
+  .text-preview-textarea {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 1.7;
+    padding: 8px;
+    resize: none;
+    border-radius: 2px;
+    overflow-y: auto;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .ocr-status {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text3);
+    padding: 4px 10px;
+  }
+
+  .highlight-list {
+    padding: 6px 8px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    flex-shrink: 0;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+  .highlight-title {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    margin-bottom: 4px;
+  }
+  .highlight-item {
+    font-size: 11px;
+    color: var(--warn);
+    cursor: pointer;
+    padding: 2px 0;
+    font-family: var(--font-mono);
+  }
+  .highlight-item:hover { color: var(--text); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">OCR <span>//</span> Project Manager</div>
+  <div class="header-path" id="headerPath"></div>
+  <button onclick="toggleLang()" id="langBtn" 
+          style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--text2);
+                 padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px;font-family:var(--font-mono);
+                 letter-spacing:0.05em">EN</button>
+</header>
+
+<div class="layout">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Projects</span>
+      <button class="btn-icon" onclick="openNewProjectModal()" title="新規プロジェクト">＋</button>
+    </div>
+    <div class="project-list" id="projectList"></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="main">
+    <div class="welcome">
+      <div class="welcome-icon">卷</div>
+      <div class="welcome-text" id="welcomeText">プロジェクトを選択、または新規作成してください</div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Project Modal -->
+<div class="modal-overlay" id="editProjectModal">
+  <div class="modal">
+    <div class="modal-title">プロジェクトを編集</div>
+    <div class="form-group">
+      <label class="form-label" id="labelEditName">プロジェクト名</label>
+      <input class="form-input" id="editProjectName" placeholder="プロジェクト名" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="labelEditDesc">説明</label>
+      <input class="form-input" id="editProjectDesc" placeholder="説明（任意）" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('editProjectModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveEditProject()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- New Project Modal -->
+<div class="modal-overlay" id="newProjectModal">
+  <div class="modal">
+    <div class="modal-title">新規プロジェクト</div>
+    <div class="form-group">
+      <label class="form-label" id="labelNewName">プロジェクト名</label>
+      <input class="form-input" id="newProjectName" placeholder="例: 推命書_明治期" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="labelNewDesc">説明（任意）</label>
+      <input class="form-input" id="newProjectDesc" placeholder="テキスト等" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('newProjectModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="createProject()">作成</button>
+    </div>
+  </div>
+</div>
+
+<!-- Manual Block Modal -->
+<div class="modal-overlay" id="manualBlockModal">
+  <div class="modal">
+    <div class="modal-title">テキストを入力</div>
+    <div class="form-group">
+      <label class="form-label" id="labelManualText">テキスト</label>
+      <textarea class="form-input" id="manualBlockText" rows="4" 
+                placeholder="認識できなかったテキストを入力"
+                style="resize:vertical;line-height:1.8"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="labelWritingDir">縦書き</label>
+      <select class="form-input" id="manualBlockVertical" style="width:auto">
+        <option value="true" id="optVertical">縦書き</option>
+        <option value="false" id="optHorizontal">横書き</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="cancelManualBlock()">キャンセル</button>
+      <button class="btn btn-primary" onclick="confirmManualBlock()">' + (lang==='ja'?'追加':'Add') + '</button>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal modal-wide">
+    <div class="modal-title" id="labelExportTitle">統合出力</div>
+    <div class="export-layout">
+
+      <!-- Settings column -->
+      <div class="export-settings">
+        <div class="form-group" style="margin:0">
+          <label class="form-label" id="labelExportFormat">出力形式</label>
+          <select class="form-input" id="exportFormat" onchange="updateExportPreview()">
+            <option value="txt" id="optExportTxt">TXT</option>
+            <option value="json" id="optExportJson">JSON</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin:0">
+          <label class="form-label" id="labelExportRange">ページ範囲</label>
+          <div class="export-range">
+            <span id="labelExportFrom">From</span>
+            <input type="number" id="exportFrom" min="1" value="1" onchange="updateExportPreview()">
+            <span id="labelExportTo">To</span>
+            <input type="number" id="exportTo" min="1" value="1" onchange="updateExportPreview()">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0">
+          <div class="toggle-row">
+            <input type="checkbox" id="exportSeparator" checked onchange="toggleSeparatorInput(); updateExportPreview()">
+            <label for="exportSeparator" id="labelSeparatorToggle">ページ区切りを入れる</label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0" id="separatorGroup">
+          <label class="form-label" id="labelSeparatorText">区切り文字</label>
+          <input class="separator-input" id="separatorText" value="--- p.{n} ---" oninput="updateExportPreview()">
+          <div style="font-size:9px;color:var(--text3);margin-top:3px">{n} = ページ番号</div>
+        </div>
+
+        <div class="form-group" style="margin:0;border-top:1px solid var(--border);padding-top:10px">
+          <div class="toggle-row">
+            <input type="checkbox" id="exportParaSeparator" checked onchange="toggleParaSepInput(); updateExportPreview()">
+            <label for="exportParaSeparator" id="labelParaSepToggle">¶ 段落区切りを反映</label>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin:0" id="paraSeparatorGroup">
+          <label class="form-label" id="labelParaSepText">段落区切り文字</label>
+          <input class="separator-input" id="paraSeparatorText" value="" placeholder="（空行を挿入）" oninput="updateExportPreview()">
+          <div style="font-size:9px;color:var(--text3);margin-top:3px" id="paraSepNote">空欄 = 空行を挿入</div>
+        </div>
+      </div>
+
+      <!-- Preview column -->
+      <div class="export-preview">
+        <div class="export-preview-label" id="labelExportPreview">Preview</div>
+        <textarea class="export-preview-area" id="exportPreviewArea" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:12px">
+      <button class="btn" onclick="closeModal('exportModal')" id="btnExportCancel">キャンセル</button>
+      <button class="btn" onclick="copyExportPreview()" id="btnExportCopy">コピー</button>
+      <button class="btn btn-primary" onclick="doExport()" id="btnExportDo">出力</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+// ── i18n ─────────────────────────────────────────────────────────────────────
+const i18n = {
+  ja: {
+    newProject: '新規プロジェクト',
+    // welcome is in i18n.ja.welcome
+    noProjects: 'プロジェクトなし',
+    noImages: '画像なし',
+    selectPage: 'ページを選択してください',
+    loading: '読み込み中...',
+    noOcr: 'OCRデータがありません',
+    runOcr: 'このページをOCR実行',
+    pages: 'Pages',
+    edit: '編集',
+    addImage: '画像を追加',
+    runOcrAll: '一括OCR実行',
+    export: '統合出力',
+    delete: '削除',
+    ocrResult: 'OCR結果',
+    threshold: '閾値',
+    opacity: '透過',
+    checkAll: '全て確認',
+    checkThreshold: '閾値以上を一括OK',
+    deleteAll: '全て削除',
+    addRange: '＋ 範囲指定追加',
+    warnItems: (n) => `⚠ 要確認 ${n}件`,
+    warnCount: (n) => `${n}件要確認`,
+    vertical: '縦',
+    manual: '手動',
+    moveTo: '→#',
+    checkedStatus: (c, t) => `${c}/${t} 確認済`,
+    ocrDone: (n) => `OCR済${n}枚`,
+    images: (n) => `${n}枚`,
+    cancel: 'キャンセル',
+    save: '保存',
+    create: '作成',
+    projectName: 'プロジェクト名',
+    description: '説明',
+    descOptional: '説明（任意）',
+    editProject: 'プロジェクトを編集',
+    textInput: 'テキストを入力',
+    textLabel: 'テキスト',
+    textPlaceholder: '認識できなかったテキストを入力',
+    writingDir: '縦書き',
+    vertical2: '縦書き',
+    horizontal: '横書き',
+    exportTitle: '統合出力',
+    exportFormat: '出力形式',
+    exportTxt: 'TXT形式（テキストのみ）',
+    exportJson: 'JSON形式（座標・信頼度付き）',
+    blockDelete: 'このブロックを削除',
+    confirmDeleteProject: (n) => `「${n}」を削除しますか？元に戻せません。`,
+    confirmDeletePage: (n) => `「${n}」を削除しますか？
+関連するOCRデータも削除されます。`,
+    confirmDeleteAll: '全てのブロックを削除しますか？',
+    toastAdded: (n) => `${n}枚 追加しました`,
+    toastProjectCreated: (n) => `プロジェクト「${n}」を作成しました`,
+    toastSaved: '保存しました',
+    toastOcrRunning: 'OCR実行中...',
+    toastOcrAllStart: '一括OCR開始...',
+    toastOcrDone: 'OCR完了',
+    toastCheckAll: (n) => `${n}件 全て確認済みにしました`,
+    toastCheckThreshold: (n) => `${n}件 閾値以上を確認済みにしました`,
+    toastDeleteAll: '全てのブロックを削除しました',
+    toastBlockAdded: (n) => `ブロック#${n} を追加しました`,
+    toastBlockDeleted: 'ブロックを削除しました',
+    toastPageDeleted: (n) => `${n} を削除しました`,
+    toastExportDone: '出力完了',
+    toastExportError: '出力エラー',
+    toastOcrError: (m) => `OCRエラー: ${m}`,
+  },
+  en: {
+    newProject: 'New Project',
+    welcome: 'Select a project or create a new one',
+    noProjects: 'No projects',
+    noImages: 'No images',
+    selectPage: 'Select a page',
+    loading: 'Loading...',
+    noOcr: 'No OCR data',
+    runOcr: 'Run OCR on this page',
+    pages: 'Pages',
+    edit: 'Edit',
+    addImage: 'Add Images',
+    runOcrAll: 'Run OCR All',
+    export: 'Export',
+    delete: 'Delete',
+    ocrResult: 'OCR Results',
+    threshold: 'Threshold',
+    opacity: 'Opacity',
+    checkAll: 'Check All',
+    checkThreshold: 'Check Above Threshold',
+    deleteAll: 'Delete All',
+    addRange: '＋ Add Region',
+    warnItems: (n) => `⚠ Review Required: ${n}`,
+    warnCount: (n) => `${n} to review`,
+    vertical: 'V',
+    manual: 'manual',
+    moveTo: '→#',
+    checkedStatus: (c, t) => `${c}/${t} checked`,
+    ocrDone: (n) => `OCR: ${n}`,
+    images: (n) => `${n} images`,
+    cancel: 'Cancel',
+    save: 'Save',
+    create: 'Create',
+    projectName: 'Project Name',
+    description: 'Description',
+    descOptional: 'Description (optional)',
+    editProject: 'Edit Project',
+    textInput: 'Enter Text',
+    textLabel: 'Text',
+    textPlaceholder: 'Enter text for this region',
+    writingDir: 'Writing Direction',
+    vertical2: 'Vertical',
+    horizontal: 'Horizontal',
+    exportTitle: 'Export',
+    exportFormat: 'Format',
+    exportTxt: 'TXT (text only)',
+    exportJson: 'JSON (with coordinates & confidence)',
+    blockDelete: 'Delete this block',
+    confirmDeleteProject: (n) => `Delete "${n}"? This cannot be undone.`,
+    confirmDeletePage: (n) => `Delete "${n}"?
+Related OCR data will also be deleted.`,
+    confirmDeleteAll: 'Delete all blocks?',
+    toastAdded: (n) => `${n} image(s) added`,
+    toastProjectCreated: (n) => `Project "${n}" created`,
+    toastSaved: 'Saved',
+    toastOcrRunning: 'Running OCR...',
+    toastOcrAllStart: 'Starting batch OCR...',
+    toastOcrDone: 'OCR complete',
+    toastCheckAll: (n) => `${n} blocks marked as checked`,
+    toastCheckThreshold: (n) => `${n} blocks above threshold checked`,
+    toastDeleteAll: 'All blocks deleted',
+    toastBlockAdded: (n) => `Block #${n} added`,
+    toastBlockDeleted: 'Block deleted',
+    toastPageDeleted: (n) => `${n} deleted`,
+    toastExportDone: 'Export complete',
+    toastExportError: 'Export error',
+    toastOcrError: (m) => `OCR error: ${m}`,
+  },
+};
+
+let lang = localStorage.getItem('ocr_lang') || 'ja';
+function t(key, ...args) {
+  const val = i18n[lang][key];
+  return typeof val === 'function' ? val(...args) : (val || key);
+}
+function toggleLang() {
+  lang = lang === 'ja' ? 'en' : 'ja';
+  localStorage.setItem('ocr_lang', lang);
+  document.getElementById('langBtn').textContent = lang === 'ja' ? 'EN' : 'JA';
+  // 全UIを再描画
+  if (state.currentProject) {
+    if (state.currentPage && state.pageData) {
+      renderProjectView();
+      selectPage(state.currentPage);
+    } else {
+      renderProjectView();
+    }
+  }
+  renderProjectList();
+  updateWelcome();
+  updateModals();
+}
+function updateWelcome() {
+  const el = document.getElementById('welcomeText');
+  if (el) el.textContent = t('welcome');
+}
+function updateModals() {
+  const set = (id, key) => { const el = document.getElementById(id); if (el) el.textContent = t(key); };
+  set('labelEditName', 'projectName');
+  set('labelEditDesc', 'description');
+  set('labelNewName', 'projectName');
+  set('labelNewDesc', 'descOptional');
+  set('labelManualText', 'textLabel');
+  set('labelWritingDir', 'writingDir');
+  set('labelExportFormat', 'exportFormat');
+  const optV = document.getElementById('optVertical');
+  if (optV) optV.textContent = t('vertical2');
+  const optH = document.getElementById('optHorizontal');
+  if (optH) optH.textContent = t('horizontal');
+  const optTxt = document.getElementById('optExportTxt');
+  if (optTxt) optTxt.textContent = t('exportTxt');
+  const optJson = document.getElementById('optExportJson');
+  if (optJson) optJson.textContent = t('exportJson');
+  // Modal titles
+  const editTitle = document.querySelector('#editProjectModal .modal-title');
+  if (editTitle) editTitle.textContent = t('editProject');
+  const newTitle = document.querySelector('#newProjectModal .modal-title');
+  if (newTitle) newTitle.textContent = t('newProject');
+  const manualTitle = document.querySelector('#manualBlockModal .modal-title');
+  if (manualTitle) manualTitle.textContent = t('textInput');
+  const exportTitle = document.querySelector('#exportModal .modal-title');
+  if (exportTitle) exportTitle.textContent = t('exportTitle');
+  // Placeholders
+  const manualTextarea = document.getElementById('manualBlockText');
+  if (manualTextarea) manualTextarea.placeholder = t('textPlaceholder');
+}
+
+let state = {
+  projects: [],
+  currentProject: null,
+  pages: [],
+  currentPage: null,
+  pageData: null,
+  overlay: {},
+  threshold: 0.9,
+  dragSrcIndex: null,
+  overlayOpacity: 0.35,
+};
+
+// ── Init placeholder (moved to end) ──
+
+async function loadProjects() {
+  const res = await fetch('/api/projects');
+  state.projects = await res.json();
+  renderProjectList();
+}
+
+// ── Project List ─────────────────────────────────────────────────────────────
+function renderProjectList() {
+  const el = document.getElementById('projectList');
+  if (state.projects.length === 0) {
+    el.innerHTML = `<div style="padding:16px;font-size:11px;color:var(--text3);text-align:center">${t('noProjects')}</div>`;
+    return;
+  }
+  el.innerHTML = state.projects.map(p => {
+    const pct = p.total_blocks > 0 ? Math.round(p.checked / p.total_blocks * 100) : 0;
+    const active = state.currentProject === p.name ? 'active' : '';
+    return `
+    <div class="project-item ${active}" onclick="selectProject('${p.name}')">
+      <div class="project-name">${p.name}</div>
+      <div class="project-meta">${p.input_count} / OCR:${p.output_count}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── Select Project ──────────────────────────────────────────────────────────
+async function selectProject(name) {
+  state.currentProject = name;
+  state.currentPage = null;
+  state.pageData = null;
+  renderProjectList();
+
+  const proj = state.projects.find(p => p.name === name);
+  state.threshold = 0.9;
+
+  await loadPages(name);
+  renderProjectView();
+  updateHeaderPath();
+}
+
+async function loadPages(name) {
+  const res = await fetch(`/api/projects/${encodeURIComponent(name)}/pages`);
+  state.pages = await res.json();
+}
+
+// ── Project View ─────────────────────────────────────────────────────────────
+function renderProjectView() {
+  const proj = state.projects.find(p => p.name === state.currentProject);
+  const main = document.getElementById('main');
+
+  main.innerHTML = `
+  <div class="project-view">
+    <div class="project-toolbar">
+      <span class="project-toolbar-title">${state.currentProject}</span>
+      <button class="btn" onclick="openEditProjectModal()">${t('edit')}</button>
+      <label class="btn" style="cursor:pointer">
+        ${t('addImage')}
+        <input type="file" accept="image/*" multiple style="display:none" onchange="uploadImagesFromInput(event)">
+      </label>
+      <button class="btn btn-primary" onclick="runOcrAll()">${t('runOcrAll')}</button>
+      <button class="btn" onclick="openExportModal()">${t('export')}</button>
+      <button class="btn btn-danger" onclick="deleteProject()">${t('delete')}</button>
+    </div>
+    <div class="content-area" style="flex-direction:column">
+      <div style="flex:1;display:flex;overflow:hidden">
+        <div class="page-panel" id="pagePanel">
+          <div class="page-panel-header">
+            <span>${t('pages')}</span>
+            <span style="font-family:var(--font-mono);font-size:9px">${state.pages.length}</span>
+          </div>
+          <div class="page-list" id="pageList"></div>
+        </div>
+        <div class="resizer" id="resizerLeft" onmousedown="startResize(event,'left')"></div>
+        <div class="editor-panel" id="editorPanel">
+          <div class="empty-state">
+            <div class="empty-icon">頁</div>
+            <div>${t('selectPage')}</div>
+          </div>
+        </div>
+      </div>
+      <div class="text-preview-panel collapsed" id="textPreviewPanel">
+        <div class="text-preview-resize-handle" id="previewResizeHandle"
+             onmousedown="startResizeBottom(event)"
+             onclick="event.stopPropagation()"></div>
+        <div class="text-preview-header" onclick="toggleTextPreview()">
+          <span class="text-preview-title" id="textPreviewTitle">📋 Text Preview</span>
+          <button class="btn" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();reloadTextPreview()" id="reloadPreviewBtn" title="再読込み">↺</button>
+          <button class="btn" style="font-size:10px;padding:2px 8px" onclick="event.stopPropagation();copyTextPreview()" id="copyPreviewBtn">Copy</button>
+          <span style="font-size:10px;color:var(--text3);margin-left:4px" id="textPreviewToggle">▲</span>
+        </div>
+        <div class="text-preview-body" id="textPreviewBody">
+          <textarea class="text-preview-textarea" id="textPreviewArea" readonly></textarea>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  renderPageList();
+}
+
+// ── Page List ────────────────────────────────────────────────────────────────
+function renderPageList() {
+  const el = document.getElementById('pageList');
+  if (!el) return;
+  if (state.pages.length === 0) {
+    el.innerHTML = `<div style="padding:12px;font-size:11px;color:var(--text3);text-align:center">${t('noImages')}</div>`;
+    return;
+  }
+  el.innerHTML = state.pages.map((p, i) => {
+    const active = state.currentPage === p.name ? 'active' : '';
+    let dotClass = 'dot-none';
+    let statusText = 'OCR ' + (lang === 'ja' ? '未実行' : 'Pending');
+    if (p.has_ocr) {
+      dotClass = p.checked_count === p.total_count && p.total_count > 0 ? 'dot-done' : 'dot-pending';
+      statusText = t('checkedStatus', p.checked_count, p.total_count);
+    }
+    return `
+    <div class="page-item ${active}" 
+         onclick="selectPage('${p.name}')"
+         draggable="true"
+         data-index="${i}"
+         ondragstart="dragStart(event, ${i})"
+         ondragover="dragOver(event)"
+         ondrop="dragDrop(event, ${i})">
+      <div style="display:flex;align-items:center;gap:4px">
+        <span class="drag-handle">⠿</span>
+        <span class="page-item-name" title="${p.name}">${p.name}</span>
+        <button class="btn-icon" style="margin-left:auto;flex-shrink:0;color:var(--warn);border-color:transparent"
+          onclick="event.stopPropagation();deletePage('${p.name}')" title="削除">×</button>
+      </div>
+      <div class="page-item-status">
+        <span class="status-dot ${dotClass}"></span>${statusText}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Drag & Drop ──────────────────────────────────────────────────────────────
+function dragStart(e, index) {
+  state.dragSrcIndex = index;
+  e.dataTransfer.effectAllowed = 'move';
+}
+function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+async function dragDrop(e, targetIndex) {
+  e.preventDefault();
+  if (state.dragSrcIndex === null || state.dragSrcIndex === targetIndex) return;
+  const pages = [...state.pages];
+  const [moved] = pages.splice(state.dragSrcIndex, 1);
+  pages.splice(targetIndex, 0, moved);
+  state.pages = pages;
+  state.dragSrcIndex = null;
+  renderPageList();
+  // Save order
+  await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/pages/order`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ order: pages.map(p => p.name) }),
+  });
+}
+
+// ── Select Page ──────────────────────────────────────────────────────────────
+async function selectPage(name) {
+  state.currentPage = name;
+  renderPageList();
+  updateHeaderPath();
+
+  const editorPanel = document.getElementById('editorPanel');
+  editorPanel.innerHTML = `
+  <div class="empty-state">
+    <div class="spinner"></div>
+    <div>${t('loading')}</div>
+  </div>`;
+
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(name)}`);
+  if (!res.ok) {
+    // No OCR data yet
+    editorPanel.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">？</div>
+      <div>${t('noOcr')}</div>
+      <button class="btn btn-primary" onclick="runOcrSingle('${name}')">${t('runOcr')}</button>
+    </div>`;
+    return;
+  }
+
+  state.pageData = await res.json();
+  // overlayをサーバーから受け取ったものをベースに、ブロックの_*値でも補完
+  const rawOverlay = state.pageData.overlay || {};
+  const mergedOverlay = {};
+  (state.pageData.ocr.contents?.[0] || []).forEach(block => {
+    const bid = String(block.id);
+    mergedOverlay[bid] = Object.assign({}, rawOverlay[bid] || {});
+    if (block._text !== undefined && mergedOverlay[bid].text === undefined)
+      mergedOverlay[bid].text = block._text;
+    if (block._checked !== undefined && mergedOverlay[bid].checked === undefined)
+      mergedOverlay[bid].checked = block._checked;
+    if (block._confidence !== undefined && mergedOverlay[bid].confidence === undefined)
+      mergedOverlay[bid].confidence = block._confidence;
+  });
+  state.overlay = mergedOverlay;
+  state.threshold = state.pageData.confidence_threshold || 0.9;
+  renderEditor();
+  setTimeout(initTextPreview, 50);
+}
+
+// ── Editor ───────────────────────────────────────────────────────────────────
+function renderEditor() {
+  const editorPanel = document.getElementById('editorPanel');
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+  const warnBlocks = blocks.filter(b => (b.confidence || 1) < state.threshold);
+
+  const imgSrc = `/api/projects/${encodeURIComponent(state.currentProject)}/image/${encodeURIComponent(state.currentPage)}`;
+
+  editorPanel.innerHTML = `
+  <div class="image-pane">
+    <div class="image-wrapper" id="imageWrapper"
+         onmousedown="drawStart(event)"
+         onmousemove="drawMove(event)"
+         onmouseup="drawEnd(event)">
+      <img src="${imgSrc}" alt="${state.currentPage}" id="pageImage" onload="renderOverlay()" draggable="false" />
+      <svg class="image-overlay" id="imageOverlay" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+      <div id="drawRect"></div>
+    </div>
+  </div>
+  <div class="resizer" id="resizerRight" onmousedown="startResize(event,'right')"></div>
+  <div class="ocr-pane" id="ocrPane">
+    <div class="ocr-pane-header" style="flex-wrap:wrap;gap:6px;">
+      <span class="ocr-pane-title">${t('ocrResult')}</span>
+      <div class="threshold-control">
+        ${t('threshold')} <input class="threshold-input" type="number" min="0" max="1" step="0.01" 
+               value="${state.threshold}" id="threshInput"
+               onchange="updateThreshold(this.value)">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto">
+        <span style="font-size:10px;color:var(--text3);white-space:nowrap">${t('opacity')}</span>
+        <input type="range" min="0" max="1" step="0.05" value="${state.overlayOpacity || 0.35}"
+               style="width:70px;accent-color:var(--accent);height:3px"
+               id="opacitySlider"
+               oninput="updateOverlayOpacity(this.value)">
+        <span style="font-family:var(--font-mono);font-size:10px;color:var(--text2);width:26px;text-align:right" id="opacityVal">${Math.round((state.overlayOpacity || 0.35)*100)}%</span>
+      </div>
+    </div>
+    <div style="padding:6px 8px;border-bottom:1px solid var(--border);display:flex;gap:6px;flex-shrink:0;flex-wrap:wrap;align-items:center">
+      <button class="btn" style="font-size:11px;padding:3px 8px" onclick="checkAll()">${t('checkAll')}</button>
+      <button class="btn" style="font-size:11px;padding:3px 8px" onclick="checkAboveThreshold()">${t('checkThreshold')}</button>
+      <button class="btn btn-danger" style="font-size:11px;padding:3px 8px" onclick="deleteAllBlocks()">${t('deleteAll')}</button>
+      <button class="btn" id="drawModeBtn" style="font-size:11px;padding:3px 8px;margin-left:auto" onclick="toggleDrawMode()">${t('addRange')}</button>
+    </div>
+    <div class="block-list" id="blockList"></div>
+    ${warnBlocks.length > 0 ? `
+    <div class="highlight-list">
+      <div class="highlight-title">${t('warnItems', warnBlocks.length)}</div>
+      ${warnBlocks.map(b => `
+        <div class="highlight-item" onclick="scrollToBlock(${b.id})">
+          [${b.id}] conf:${(b.confidence||0).toFixed(3)} — ${(b.text||'').slice(0,20)}...
+        </div>`).join('')}
+    </div>` : ''}
+    <div class="warn-summary">
+      全${blocks.length}ブロック　
+      <span class="warn-count">${t('warnCount', warnBlocks.length)}</span>
+    </div>
+  </div>`;
+
+  renderBlockList();
+  // 画像がキャッシュ済みの場合はonloadが発火しないので明示的に呼ぶ
+  const img = document.getElementById('pageImage');
+  if (img && img.complete) renderOverlay();
+}
+
+function renderBlockList() {
+  const el = document.getElementById('blockList');
+  if (!el) return;
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+
+  el.innerHTML = blocks.map((block, i) => {
+    const bid = String(block.id);
+    const ov = state.overlay[bid] || {};
+    // _text/_checked/_confidenceはサーバーがoverlayをマージした値、なければoverlayから、なければブロック本体
+    const text = ov.text !== undefined ? ov.text : (block._text !== undefined ? block._text : (block.text || ''));
+    const conf = ov.confidence !== undefined ? ov.confidence : (block._confidence !== undefined ? block._confidence : (block.confidence || 1));
+    const isChecked = ov.checked !== undefined ? ov.checked : (block._checked || false);
+    const isWarn = conf < state.threshold && !isChecked;
+
+    let cls = '';
+    if (isChecked) cls = 'checked';
+    else if (isWarn) cls = 'warn';
+
+    return `
+    <div class="block-item ${cls}" id="block-${block.id}"
+         draggable="true"
+         data-block-index="${i}"
+         ondragstart="blockDragStart(event, ${i})"
+         ondragover="blockDragOver(event)"
+         ondrop="blockDragDrop(event, ${i})"
+         ondragleave="blockDragLeave(event)">
+      <div class="block-header">
+        <span class="drag-handle" style="margin-right:4px;font-size:10px;cursor:grab">⠿</span>
+        <span class="block-id">#${block.id}</span>
+        <span class="block-conf ${isWarn ? 'conf-warn' : 'conf-ok'}">${conf.toFixed(3)}</span>
+        ${block.isVertical === 'true' ? '<span style="font-size:9px;color:var(--text3)">縦</span>' : ''}
+        ${block.manual ? '<span style="font-size:9px;color:var(--blue)">手動</span>' : ''}
+        <span style="display:flex;align-items:center;gap:2px;margin-left:4px">
+          <span style="font-size:9px;color:var(--text3)">→#</span>
+          <input type="number" min="0" value="${block.id}"
+            style="width:36px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);
+                   font-family:var(--font-mono);font-size:10px;padding:1px 3px;border-radius:2px;text-align:center"
+            title="移動先の番号を入力してEnter"
+            onkeydown="if(event.key==='Enter') moveBlockTo(${block.id}, parseInt(this.value))"
+            onblur="this.value=${block.id}"
+            onclick="event.stopPropagation()">
+        </span>
+        <button onclick="toggleParaBreak(${block.id})"
+                style="background:none;border:none;cursor:pointer;font-size:13px;padding:0 2px;line-height:1;
+                       color:${ov.paragraph_break ? '#c8a96e' : 'var(--text3)'}"
+                title="${ov.paragraph_break ? (lang==='ja'?'段落区切りを解除':'Remove paragraph break') : (lang==='ja'?'ここで段落区切り':'Paragraph break here')}">¶</button>
+        <input type="checkbox" class="block-check" ${isChecked ? 'checked' : ''}
+               onchange="toggleCheck(${block.id}, this.checked)" title="確認済み">
+        <button onclick="deleteBlock(${block.id})" 
+                style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 2px;line-height:1"
+                title="${t('blockDelete')}">×</button>
+      </div>
+      <div class="block-text" contenteditable="true" 
+           onblur="saveText(${block.id}, this.innerText)"
+           id="text-${block.id}">${text}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Paragraph Break ──────────────────────────────────────────────────────────
+async function toggleParaBreak(blockId) {
+  const ov = getOrCreateOverlay(blockId);
+  ov.paragraph_break = !ov.paragraph_break;
+  await persistOverlay();
+  renderBlockList();
+}
+
+// ── Delete Block ─────────────────────────────────────────────────────────────
+async function deleteBlock(blockId) {
+  const blocks = state.pageData.ocr.contents[0];
+  const idx = blocks.findIndex(b => b.id === blockId);
+  if (idx === -1) return;
+  blocks.splice(idx, 1);
+
+  // overlayからも削除
+  delete state.overlay[String(blockId)];
+
+  // サーバー保存
+  await persistOverlay();
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/delete_block`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ block_id: blockId }),
+    }
+  );
+
+  // 削除後もIDを振り直す
+  renumberBlocks();
+  await persistOverlay();
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/reorder`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: state.pageData.ocr.contents[0] }),
+    }
+  );
+  renderBlockList();
+  renderOverlay();
+  toast(t('toastBlockDeleted'), '');
+}
+
+// ── Block Drag & Drop ────────────────────────────────────────────────────────
+let blockDragSrc = null;
+
+function blockDragStart(e, index) {
+  blockDragSrc = index;
+  e.dataTransfer.effectAllowed = 'move';
+  e.stopPropagation(); // ページD&Dと干渉しないように
+}
+
+function blockDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.style.borderTopColor = 'var(--accent)';
+}
+
+function blockDragLeave(e) {
+  e.currentTarget.style.borderTopColor = '';
+}
+
+async function blockDragDrop(e, targetIndex) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.currentTarget.style.borderTopColor = '';
+  if (blockDragSrc === null || blockDragSrc === targetIndex) return;
+
+  const blocks = state.pageData.ocr.contents[0];
+  const [moved] = blocks.splice(blockDragSrc, 1);
+  blocks.splice(targetIndex, 0, moved);
+  blockDragSrc = null;
+
+  // IDを配列順に0から振り直す
+  renumberBlocks();
+
+  // サーバー側のJSONも更新
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/reorder`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: blocks }),
+    }
+  );
+
+  await persistOverlay();
+  renderBlockList();
+  renderOverlay();
+}
+
+async function moveBlockTo(blockId, targetPos) {
+  const blocks = state.pageData.ocr.contents[0];
+  const srcIdx = blocks.findIndex(b => b.id === blockId);
+  if (srcIdx === -1) return;
+  const maxPos = blocks.length - 1;
+  const destIdx = Math.max(0, Math.min(maxPos, targetPos));
+  if (srcIdx === destIdx) return;
+
+  const [moved] = blocks.splice(srcIdx, 1);
+  blocks.splice(destIdx, 0, moved);
+
+  renumberBlocks();
+
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/reorder`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: state.pageData.ocr.contents[0] }),
+    }
+  );
+  await persistOverlay();
+  renderBlockList();
+  renderOverlay();
+  // 移動後のブロックにスクロール
+  setTimeout(() => scrollToBlock(destIdx), 50);
+}
+
+function renumberBlocks() {
+  const blocks = state.pageData.ocr.contents[0];
+  const newOverlay = {};
+  blocks.forEach((block, i) => {
+    const oldId = String(block.id);
+    const newId = i;
+    // overlayのキーを新IDに移し替え
+    if (state.overlay[oldId]) {
+      newOverlay[String(newId)] = state.overlay[oldId];
+    }
+    block.id = newId;
+  });
+  state.overlay = newOverlay;
+}
+
+function scrollToBlock(id) {
+  const el = document.getElementById(`block-${id}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  // 画像上の対応する枠を点滅
+  flashOverlayRect(id);
+}
+
+function flashOverlayRect(blockId) {
+  const rect = document.getElementById(`rect-${blockId}`);
+  if (!rect) return;
+  rect.classList.add('flash');
+  setTimeout(() => rect.classList.remove('flash'), 600);
+}
+
+function renderOverlay() {
+  const svg = document.getElementById('imageOverlay');
+  const img = document.getElementById('pageImage');
+  if (!svg || !img || !state.pageData) return;
+
+  const imgInfo = state.pageData.ocr.imginfo || {};
+  const imgW = imgInfo.img_width || img.naturalWidth || 1;
+  const imgH = imgInfo.img_height || img.naturalHeight || 1;
+
+  svg.setAttribute('viewBox', `0 0 ${imgW} ${imgH}`);
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+
+  svg.innerHTML = blocks.map(block => {
+    const bid = String(block.id);
+    const ov = state.overlay[bid] || {};
+    const bb = block.boundingBox;
+    if (!bb || bb.length < 2) return '';
+
+    // boundingBoxは[[x1,y1],[x2,y2],[x3,y3],[x4,y4]]または[[x1,y1],[x2,y2]]
+    const xs = bb.map(p => p[0]);
+    const ys = bb.map(p => p[1]);
+    const x = Math.min(...xs);
+    const y = Math.min(...ys);
+    const w = Math.max(...xs) - x;
+    const h = Math.max(...ys) - y;
+
+    const conf = block.confidence || 1;
+    const isChecked = ov.checked || false;
+    const isWarn = conf < state.threshold && !isChecked;
+    const cls = isChecked ? 'checked' : (isWarn ? 'warn' : 'normal');
+
+    const op = cls === 'normal' ? 0 : state.overlayOpacity;
+    return `<rect id="rect-${block.id}" class="overlay-rect ${cls}"
+      x="${x}" y="${y}" width="${w}" height="${h}"
+      opacity="${op}"
+      onclick="scrollToBlock(${block.id})" />`;
+  }).join('');
+}
+
+// ── 一括チェック ──────────────────────────────────────────────────────────────
+async function checkAll() {
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+  blocks.forEach(block => {
+    const ov = getOrCreateOverlay(block.id);
+    ov.checked = true;
+    ov.confidence = 1.0;
+  });
+  await persistOverlay();
+  renderBlockList();
+  renderOverlay();
+  loadPages(state.currentProject).then(renderPageList);
+  toast(t('toastCheckAll', blocks.length), 'success');
+}
+
+async function checkAboveThreshold() {
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+  let count = 0;
+  blocks.forEach(block => {
+    const conf = block.confidence || 1;
+    if (conf >= state.threshold) {
+      const ov = getOrCreateOverlay(block.id);
+      ov.checked = true;
+      ov.confidence = 1.0;
+      count++;
+    }
+  });
+  await persistOverlay();
+  renderBlockList();
+  renderOverlay();
+  loadPages(state.currentProject).then(renderPageList);
+  toast(t('toastCheckThreshold', count), 'success');
+}
+
+async function deleteAllBlocks() {
+  if (!confirm(t('confirmDeleteAll'))) return;
+  state.pageData.ocr.contents[0] = [];
+  state.overlay = {};
+  await persistOverlay();
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/reorder`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: [] }),
+    }
+  );
+  renderBlockList();
+  renderOverlay();
+  loadPages(state.currentProject).then(renderPageList);
+  toast(t('toastDeleteAll'), '');
+}
+
+function updateOverlayOpacity(val) {
+  state.overlayOpacity = parseFloat(val);
+  document.getElementById('opacityVal').textContent = Math.round(state.overlayOpacity * 100) + '%';
+  const svg = document.getElementById('imageOverlay');
+  if (!svg) return;
+  svg.querySelectorAll('.overlay-rect').forEach(rect => {
+    if (!rect.classList.contains('normal')) {
+      rect.setAttribute('opacity', state.overlayOpacity);
+    }
+  });
+}
+
+// ── 範囲指定手動追加 ──────────────────────────────────────────────────────────
+let drawState = {
+  active: false,  // 描画モードON/OFF
+  drawing: false, // ドラッグ中
+  startX: 0, startY: 0,
+  pendingBB: null, // 確定前のboundingBox（画像座標系）
+};
+
+function toggleDrawMode() {
+  drawState.active = !drawState.active;
+  const btn = document.getElementById('drawModeBtn');
+  const wrapper = document.getElementById('imageWrapper');
+  if (btn) btn.style.borderColor = drawState.active ? 'var(--accent)' : '';
+  if (btn) btn.style.color = drawState.active ? 'var(--accent)' : '';
+  if (wrapper) wrapper.classList.toggle('drawing', drawState.active);
+  if (!drawState.active) {
+    const dr = document.getElementById('drawRect');
+    if (dr) dr.style.display = 'none';
+  }
+}
+
+function getImageCoords(e) {
+  const img = document.getElementById('pageImage');
+  const wrapper = document.getElementById('imageWrapper');
+  if (!img || !wrapper) return null;
+  const rect = wrapper.getBoundingClientRect();
+  const scaleX = (state.pageData.ocr.imginfo?.img_width || img.naturalWidth) / img.offsetWidth;
+  const scaleY = (state.pageData.ocr.imginfo?.img_height || img.naturalHeight) / img.offsetHeight;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top) * scaleY,
+    px: e.clientX - rect.left,
+    py: e.clientY - rect.top,
+  };
+}
+
+function drawStart(e) {
+  if (!drawState.active) return;
+  e.preventDefault();
+  const coords = getImageCoords(e);
+  if (!coords) return;
+  drawState.drawing = true;
+  drawState.startX = coords.x;
+  drawState.startY = coords.y;
+  drawState.startPX = coords.px;
+  drawState.startPY = coords.py;
+  const dr = document.getElementById('drawRect');
+  if (dr) {
+    dr.style.display = 'block';
+    dr.style.left = coords.px + 'px';
+    dr.style.top = coords.py + 'px';
+    dr.style.width = '0';
+    dr.style.height = '0';
+  }
+}
+
+function drawMove(e) {
+  if (!drawState.active || !drawState.drawing) return;
+  e.preventDefault();
+  const coords = getImageCoords(e);
+  if (!coords) return;
+  const dr = document.getElementById('drawRect');
+  if (!dr) return;
+  const x = Math.min(drawState.startPX, coords.px);
+  const y = Math.min(drawState.startPY, coords.py);
+  const w = Math.abs(coords.px - drawState.startPX);
+  const h = Math.abs(coords.py - drawState.startPY);
+  dr.style.left = x + 'px';
+  dr.style.top = y + 'px';
+  dr.style.width = w + 'px';
+  dr.style.height = h + 'px';
+}
+
+function drawEnd(e) {
+  if (!drawState.active || !drawState.drawing) return;
+  e.preventDefault();
+  drawState.drawing = false;
+  const coords = getImageCoords(e);
+  if (!coords) return;
+  const dr = document.getElementById('drawRect');
+  if (dr) dr.style.display = 'none';
+
+  const x1 = Math.min(drawState.startX, coords.x);
+  const y1 = Math.min(drawState.startY, coords.y);
+  const x2 = Math.max(drawState.startX, coords.x);
+  const y2 = Math.max(drawState.startY, coords.y);
+
+  if (x2 - x1 < 5 || y2 - y1 < 5) return; // 小さすぎる場合は無視
+
+  drawState.pendingBB = [[x1,y1],[x1,y2],[x2,y1],[x2,y2]];
+
+  // テキスト入力モーダルを開く
+  document.getElementById('manualBlockText').value = '';
+  document.getElementById('manualBlockModal').classList.add('open');
+  setTimeout(() => document.getElementById('manualBlockText').focus(), 100);
+}
+
+function cancelManualBlock() {
+  drawState.pendingBB = null;
+  closeModal('manualBlockModal');
+}
+
+async function confirmManualBlock() {
+  const text = document.getElementById('manualBlockText').value.trim();
+  const isVertical = document.getElementById('manualBlockVertical').value;
+  if (!text || !drawState.pendingBB) { closeModal('manualBlockModal'); return; }
+
+  // 新しいブロックIDを生成（既存の最大ID+1）
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+  const maxId = blocks.reduce((m, b) => Math.max(m, b.id || 0), 0);
+  const newId = maxId + 1;
+
+  // OCR JSONにブロックを追加
+  state.pageData.ocr.contents[0].push({
+    id: newId,
+    boundingBox: drawState.pendingBB,
+    text: text,
+    confidence: 1.0,
+    isVertical: isVertical,
+    isTextline: 'true',
+    manual: true,
+  });
+
+  // overlayにも追加（確認済み扱い）
+  const ov = getOrCreateOverlay(newId);
+  ov.text = text;
+  ov.checked = true;
+  ov.confidence = 1.0;
+  ov.manual = true;
+
+  // 保存
+  await persistOverlay();
+  await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/ocr_patch`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ block: state.pageData.ocr.contents[0][state.pageData.ocr.contents[0].length - 1] }),
+  });
+
+  drawState.pendingBB = null;
+  closeModal('manualBlockModal');
+  toggleDrawMode(); // 描画モードを解除
+  renderBlockList();
+  renderOverlay();
+  toast(t('toastBlockAdded', newId), 'success');
+}
+
+function updateThreshold(val) {
+  state.threshold = parseFloat(val);
+  fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ confidence_threshold: state.threshold }),
+  });
+  renderEditor();
+}
+
+// ── Overlay Operations ───────────────────────────────────────────────────────
+function getOrCreateOverlay(blockId) {
+  const bid = String(blockId);
+  if (!state.overlay[bid]) state.overlay[bid] = {};
+  return state.overlay[bid];
+}
+
+function saveText(blockId, text) {
+  const ov = getOrCreateOverlay(blockId);
+  ov.text = text.trim();
+  persistOverlay();
+  updateBlockStyle(blockId);
+}
+
+function toggleCheck(blockId, checked) {
+  const ov = getOrCreateOverlay(blockId);
+  ov.checked = checked;
+  // チェック済み=人間が確認済みなのでconfidenceを1.0に上書き
+  if (checked) {
+    ov.confidence = 1.0;
+  } else {
+    delete ov.confidence;
+  }
+  persistOverlay();
+  updateBlockStyle(blockId);
+  updateOverlayRect(blockId);
+  // Update page list progress
+  loadPages(state.currentProject).then(renderPageList);
+}
+
+function updateBlockStyle(blockId) {
+  const el = document.getElementById(`block-${blockId}`);
+  if (!el) return;
+  const bid = String(blockId);
+  const ov = state.overlay[bid] || {};
+  const block = (state.pageData.ocr.contents?.[0] || []).find(b => b.id === blockId);
+  // overlayのconfidenceを優先（チェック済みは1.0）
+  const conf = ov.confidence !== undefined ? ov.confidence : (block?.confidence || 1);
+  el.classList.remove('warn', 'checked');
+  if (ov.checked) el.classList.add('checked');
+  else if (conf < state.threshold) el.classList.add('warn');
+}
+
+function updateOverlayRect(blockId) {
+  const rect = document.getElementById(`rect-${blockId}`);
+  if (!rect) return;
+  const bid = String(blockId);
+  const ov = state.overlay[bid] || {};
+  const block = (state.pageData.ocr.contents?.[0] || []).find(b => b.id === blockId);
+  const conf = block?.confidence || 1;
+  const isChecked = ov.checked || false;
+  const isWarn = conf < state.threshold && !isChecked;
+  rect.className.baseVal = `overlay-rect ${isChecked ? 'checked' : isWarn ? 'warn' : 'normal'}`;
+}
+
+async function persistOverlay() {
+  if (!state.currentPage) return;
+  await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/overlay`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(state.overlay),
+  });
+}
+
+// ── OCR ──────────────────────────────────────────────────────────────────────
+async function runOcrSingle(filename) {
+  toast(t('toastOcrRunning'), '');
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/ocr/${encodeURIComponent(filename)}`, {
+    method: 'POST',
+  });
+  const data = await res.json();
+  pollProgress(data.job_id, async () => {
+    await loadPages(state.currentProject);
+    renderPageList();
+    selectPage(filename);
+  });
+}
+
+async function runOcrAll() {
+  toast(t('toastOcrAllStart'), '');
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/ocr_all`, {
+    method: 'POST',
+  });
+  const data = await res.json();
+  pollProgress(data.job_id, async () => {
+    await loadPages(state.currentProject);
+    renderPageList();
+    toast(t('toastOcrDone'), 'success');
+  });
+}
+
+function pollProgress(jobId, onDone) {
+  const interval = setInterval(async () => {
+    const res = await fetch(`/api/ocr_progress/${encodeURIComponent(jobId)}`);
+    const data = await res.json();
+    if (data.status === 'done') {
+      clearInterval(interval);
+      onDone();
+    } else if (data.status === 'error') {
+      clearInterval(interval);
+      toast(t('toastOcrError', data.message), 'error');
+    } else if (data.status === 'running' && data.message) {
+      toast(data.message, '');
+    }
+  }, 1500);
+}
+
+// ── Upload ────────────────────────────────────────────────────────────────────
+async function uploadImagesFromInput(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  await doUpload(files);
+}
+
+async function doUpload(files) {
+  if (!state.currentProject) { toast('プロジェクトを選択してください', 'error'); return; }
+  const imageFiles = files.filter(f => f.type.startsWith('image/'));
+  if (!imageFiles.length) { toast('画像ファイルを選択してください', 'error'); return; }
+
+  // Sort files by name before uploading
+  imageFiles.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+
+  const fd = new FormData();
+  for (const f of imageFiles) fd.append('files', f);
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/upload`, {
+    method: 'POST', body: fd,
+  });
+  const data = await res.json();
+  toast(t('toastAdded', data.saved.length), 'success');
+  await loadPages(state.currentProject);
+  await loadProjects();
+  renderProjectView();
+}
+
+// ── Drag & Drop Upload ─────────────────────────────────────────────────────────
+document.addEventListener('dragover', (e) => {
+  if (!drawState.active) e.preventDefault();
+});
+
+document.addEventListener('drop', async (e) => {
+  if (drawState.active) return;
+  e.preventDefault();
+  if (!state.currentProject) return;
+  const files = Array.from(e.dataTransfer.files);
+  await doUpload(files);
+});
+
+// ── Edit Project ──────────────────────────────────────────────────────────────
+function openEditProjectModal() {
+  const proj = state.projects.find(p => p.name === state.currentProject);
+  document.getElementById('editProjectName').value = proj?.name || '';
+  document.getElementById('editProjectDesc').value = proj?.description || '';
+  document.getElementById('editProjectModal').classList.add('open');
+  setTimeout(() => document.getElementById('editProjectName').focus(), 100);
+}
+
+async function saveEditProject() {
+  const newName = document.getElementById('editProjectName').value.trim();
+  const newDesc = document.getElementById('editProjectDesc').value.trim();
+  if (!newName) return;
+
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/edit`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: newName, description: newDesc }),
+  });
+  const data = await res.json();
+  if (data.error) { toast(data.error, 'error'); return; }
+  closeModal('editProjectModal');
+  const oldName = state.currentProject;
+  state.currentProject = newName;
+  await loadProjects();
+  await loadPages(newName);
+  renderProjectView();
+  updateHeaderPath();
+  toast(t('toastSaved'), 'success');
+}
+
+// ── Export ────────────────────────────────────────────────────────────────────
+function openExportModal() {
+  // ページ範囲をページ数で初期化
+  const total = state.pages.length;
+  const fromEl = document.getElementById('exportFrom');
+  const toEl = document.getElementById('exportTo');
+  if (fromEl) { fromEl.value = 1; fromEl.max = total; }
+  if (toEl) { toEl.value = total; toEl.max = total; }
+  document.getElementById('exportModal').classList.add('open');
+  updateExportPreview();
+  updateExportModalLang();
+}
+
+function toggleSeparatorInput() {
+  const on = document.getElementById('exportSeparator').checked;
+  document.getElementById('separatorGroup').style.display = on ? '' : 'none';
+}
+
+function toggleParaSepInput() {
+  const on = document.getElementById('exportParaSeparator').checked;
+  document.getElementById('paraSeparatorGroup').style.display = on ? '' : 'none';
+}
+
+function getExportPages() {
+  const from = parseInt(document.getElementById('exportFrom').value) - 1;
+  const to = parseInt(document.getElementById('exportTo').value) - 1;
+  const start = Math.max(0, Math.min(from, state.pages.length - 1));
+  const end = Math.max(start, Math.min(to, state.pages.length - 1));
+  return state.pages.slice(start, end + 1);
+}
+
+function buildPageText(blocks, overlay, useParaSep, paraSepStr) {
+  const lines = [];
+  for (const block of blocks) {
+    const bid = String(block.id);
+    const ov = overlay[bid] || {};
+    if (useParaSep && ov.paragraph_break && lines.length > 0) {
+      lines.push(paraSepStr !== '' ? paraSepStr : '');
+    }
+    const text = ov.text !== undefined ? ov.text
+                 : (block._text !== undefined ? block._text : (block.text || ''));
+    if (text.trim()) lines.push(text);
+  }
+  return lines.join('\n');
+}
+
+async function updateExportPreview() {
+  const fmt = document.getElementById('exportFormat').value;
+  const useSep = document.getElementById('exportSeparator').checked;
+  const sepTemplate = document.getElementById('separatorText').value;
+  const useParaSep = document.getElementById('exportParaSeparator').checked;
+  const paraSepStr = document.getElementById('paraSeparatorText').value;
+  const pages = getExportPages();
+
+  if (fmt === 'json') {
+    document.getElementById('exportPreviewArea').value = lang === 'ja'
+      ? '(JSON形式はプレビュー省略)' : '(JSON preview not available)';
+    return;
+  }
+
+  const parts = [];
+  for (let i = 0; i < pages.length; i++) {
+    const p = pages[i];
+    if (useSep) {
+      const pageNum = i + parseInt(document.getElementById('exportFrom').value);
+      const sep = sepTemplate.replace(/{n}/g, String(pageNum));
+      parts.push(sep);
+    }
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(p.name)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const overlay = data.overlay || {};
+        const blocks = data.ocr.contents?.[0] || [];
+        parts.push(buildPageText(blocks, overlay, useParaSep, paraSepStr));
+      }
+    } catch(e) {}
+  }
+  document.getElementById('exportPreviewArea').value = parts.join('\n');
+}
+
+async function copyExportPreview() {
+  const area = document.getElementById('exportPreviewArea');
+  try {
+    await navigator.clipboard.writeText(area.value);
+    const btn = document.getElementById('btnExportCopy');
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.color = 'var(--ok)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
+  } catch(e) {
+    area.select(); document.execCommand('copy');
+  }
+}
+
+async function doExport() {
+  const fmt = document.getElementById('exportFormat').value;
+  const useSep = document.getElementById('exportSeparator').checked;
+  const sepTemplate = document.getElementById('separatorText').value;
+  const useParaSep = document.getElementById('exportParaSeparator').checked;
+  const paraSepStr = document.getElementById('paraSeparatorText').value;
+  const pages = getExportPages();
+  closeModal('exportModal');
+
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/export`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      format: fmt,
+      pages: pages.map(p => p.name),
+      separator: useSep ? sepTemplate : null,
+      para_separator: useParaSep ? paraSepStr : null,
+    }),
+  });
+  if (res.ok) {
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${state.currentProject}_export.${fmt}`;
+    a.click();
+    toast(t('toastExportDone'), 'success');
+  } else {
+    toast(t('toastExportError'), 'error');
+  }
+}
+
+function updateExportModalLang() {
+  const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  const isEn = lang === 'en';
+  set('labelExportTitle', isEn ? 'Export' : '統合出力');
+  set('labelExportRange', isEn ? 'Page Range' : 'ページ範囲');
+  set('labelExportFrom', isEn ? 'From' : '開始');
+  set('labelExportTo', isEn ? 'To' : '終了');
+  set('labelSeparatorToggle', isEn ? 'Insert page separator' : 'ページ区切りを入れる');
+  set('labelSeparatorText', isEn ? 'Separator' : '区切り文字');
+  set('labelExportPreview', isEn ? 'Preview' : 'プレビュー');
+  set('btnExportCancel', t('cancel'));
+  set('btnExportCopy', isEn ? 'Copy' : 'コピー');
+  set('btnExportDo', isEn ? 'Export' : '出力');
+  const optTxt = document.getElementById('optExportTxt');
+  if (optTxt) optTxt.textContent = t('exportTxt');
+  const optJson = document.getElementById('optExportJson');
+  if (optJson) optJson.textContent = t('exportJson');
+  const sepNote = document.querySelector('#separatorGroup div');
+  if (sepNote) sepNote.textContent = isEn ? '{n} = page number' : '{n} = ページ番号';
+  set('labelParaSepToggle', isEn ? '¶ Apply paragraph breaks' : '¶ 段落区切りを反映');
+  set('labelParaSepText', isEn ? 'Paragraph separator' : '段落区切り文字');
+  set('paraSepNote', isEn ? 'Empty = insert blank line' : '空欄 = 空行を挿入');
+  const paraPlaceholder = document.getElementById('paraSeparatorText');
+  if (paraPlaceholder) paraPlaceholder.placeholder = isEn ? '(blank line)' : '（空行を挿入）';
+}
+
+// ── Delete Page ──────────────────────────────────────────────────────────────
+async function deletePage(filename) {
+  if (!confirm(t('confirmDeletePage', filename))) return;
+  const res = await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}/pages/${encodeURIComponent(filename)}`, {
+    method: 'DELETE',
+  });
+  const data = await res.json();
+  if (data.error) { toast(data.error, 'error'); return; }
+  if (state.currentPage === filename) {
+    state.currentPage = null;
+    state.pageData = null;
+    document.getElementById('editorPanel').innerHTML = `
+    <div class="empty-state">
+      <div class="empty-icon">頁</div>
+      <div>${t('selectPage')}</div>
+    </div>`;
+  }
+  await loadPages(state.currentProject);
+  await loadProjects();
+  renderPageList();
+  toast(t('toastPageDeleted', filename), 'success');
+}
+
+// ── Delete Project ────────────────────────────────────────────────────────────
+async function deleteProject() {
+  if (!confirm(t('confirmDeleteProject', state.currentProject))) return;
+  await fetch(`/api/projects/${encodeURIComponent(state.currentProject)}`, { method: 'DELETE' });
+  state.currentProject = null;
+  await loadProjects();
+  document.getElementById('main').innerHTML = `
+  <div class="welcome">
+    <div class="welcome-icon">卷</div>
+    <div class="welcome-text" id="welcomeText">${t('welcome')}</div>
+  </div>`;
+  updateHeaderPath();
+}
+
+// ── New Project ───────────────────────────────────────────────────────────────
+function openNewProjectModal() {
+  document.getElementById('newProjectName').value = '';
+  document.getElementById('newProjectDesc').value = '';
+  document.getElementById('newProjectModal').classList.add('open');
+  setTimeout(() => document.getElementById('newProjectName').focus(), 100);
+}
+
+async function createProject() {
+  const name = document.getElementById('newProjectName').value.trim();
+  if (!name) return;
+  const desc = document.getElementById('newProjectDesc').value.trim();
+  const res = await fetch('/api/projects', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, description: desc }),
+  });
+  const data = await res.json();
+  if (data.error) { toast(data.error, 'error'); return; }
+  closeModal('newProjectModal');
+  await loadProjects();
+  selectProject(name);
+  toast(t('toastProjectCreated', name), 'success');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+// close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+// Enter key in new project modal
+document.getElementById('newProjectName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') createProject();
+});
+
+// ── Text Preview Panel Resize ────────────────────────────────────────────────
+function startResizeBottom(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const handle = document.getElementById('previewResizeHandle');
+  const panel = document.getElementById('textPreviewPanel');
+  const contentArea = panel.parentElement;
+  const startY = e.clientY;
+  let moved = false;
+
+  if (panel.classList.contains('collapsed')) {
+    panel.classList.remove('collapsed');
+    textPreviewOpen = true;
+    const toggle = document.getElementById('textPreviewToggle');
+    if (toggle) toggle.textContent = '▼';
+    panel.style.height = '220px';
+    panel.style.minHeight = '36px';
+    panel.style.transition = 'none';
+  }
+
+  const startH = panel.offsetHeight;
+  const totalH = contentArea.offsetHeight;
+  handle.classList.add('dragging');
+
+  function onMove(ev) {
+    moved = true;
+    const delta = startY - ev.clientY;
+    const newH = Math.min(Math.max(80, startH + delta), totalH - 100);
+    panel.style.height = newH + 'px';
+    panel.style.minHeight = newH + 'px';
+    panel.style.transition = 'none';
+  }
+
+  function onUp() {
+    handle.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    if (!moved) toggleTextPreview();
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ── Text Preview ─────────────────────────────────────────────────────────────
+let textPreviewOpen = false;
+
+function buildPreviewText() {
+  if (!state.pageData) return '';
+  const blocks = state.pageData.ocr.contents?.[0] || [];
+  return blocks.map(block => {
+    const bid = String(block.id);
+    const ov = state.overlay[bid] || {};
+    return ov.text !== undefined ? ov.text : (block._text !== undefined ? block._text : (block.text || ''));
+  }).filter(t => t.trim()).join('\n');
+}
+
+function initTextPreview() {
+  const panel = document.getElementById('textPreviewPanel');
+  if (!panel) return;
+  panel.classList.remove('collapsed');
+  textPreviewOpen = true;
+  document.getElementById('textPreviewToggle').textContent = '▼';
+  reloadTextPreview();
+}
+
+function reloadTextPreview() {
+  const area = document.getElementById('textPreviewArea');
+  if (!area) return;
+  area.value = buildPreviewText();
+}
+
+function toggleTextPreview() {
+  const panel = document.getElementById('textPreviewPanel');
+  if (!panel) return;
+  textPreviewOpen = !textPreviewOpen;
+  panel.classList.toggle('collapsed', !textPreviewOpen);
+  document.getElementById('textPreviewToggle').textContent = textPreviewOpen ? '▼' : '▲';
+}
+
+async function copyTextPreview() {
+  const area = document.getElementById('textPreviewArea');
+  if (!area) return;
+  try {
+    await navigator.clipboard.writeText(area.value);
+    const btn = document.getElementById('copyPreviewBtn');
+    const orig = btn.textContent;
+    btn.textContent = '✓';
+    btn.style.color = 'var(--ok)';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1500);
+  } catch(e) {
+    area.select();
+    document.execCommand('copy');
+  }
+}
+
+// ── Panel Resize ─────────────────────────────────────────────────────────────
+function startResize(e, side) {
+  e.preventDefault();
+  const startX = e.clientX;
+  const resizer = e.currentTarget;
+  resizer.classList.add('dragging');
+
+  let startWidth;
+  let target;
+
+  if (side === 'left') {
+    target = document.getElementById('pagePanel');
+    startWidth = target ? target.offsetWidth : 200;
+  } else {
+    target = document.getElementById('ocrPane');
+    startWidth = target ? target.offsetWidth : 380;
+  }
+
+  function onMove(e) {
+    if (!target) return;
+    const dx = e.clientX - startX;
+    if (side === 'left') {
+      const newW = Math.max(120, Math.min(400, startWidth + dx));
+      target.style.width = newW + 'px';
+    } else {
+      const newW = Math.max(260, Math.min(600, startWidth - dx));
+      target.style.width = newW + 'px';
+    }
+  }
+
+  function onUp() {
+    resizer.classList.remove('dragging');
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseup', onUp);
+  }
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onUp);
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function toast(msg, type = '') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast show ${type}`;
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+function updateHeaderPath() {
+  const el = document.getElementById('headerPath');
+  let html = '';
+  if (state.currentProject) {
+    html += `<span class="active">${state.currentProject}</span>`;
+    if (state.currentPage) {
+      html += `<span class="sep">/</span><span class="active">${state.currentPage}</span>`;
+    }
+  }
+  el.innerHTML = html;
+}
+
+// ── Init ────────────────────────────────────────────────────────────────────
+loadProjects();
+setInterval(loadProjects, 5000);
+// 言語初期化
+document.getElementById('langBtn').textContent = lang === 'ja' ? 'EN' : 'JA';
+updateModals();
+</script>
+</body>
+</html>
