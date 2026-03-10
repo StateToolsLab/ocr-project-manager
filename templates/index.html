@@ -13,9 +13,9 @@
     --bg3: #1e1e1e;
     --border: #2a2a2a;
     --border2: #333;
-    --text: #e8e0d5;
-    --text2: #9a9080;
-    --text3: #5a5248;
+    --text: #f0ebe4;
+    --text2: #b8a898;
+    --text3: #7a6e64;
     --accent: #c8a96e;
     --accent2: #8b6f47;
     --warn: #d4826a;
@@ -25,6 +25,22 @@
     --font-mono: 'JetBrains Mono', monospace;
   }
 
+  [data-theme="light"] {
+    --bg: #eef4f9;
+    --bg2: #ffffff;
+    --bg3: #dce8f2;
+    --border: #bdd0e0;
+    --border2: #96b4ca;
+    --text: #0a1929;
+    --text2: #1e4060;
+    --text3: #5a7e98;
+    --accent: #1565a8;
+    --accent2: #0d4d8a;
+    --warn: #c0392b;
+    --ok: #1a7a3c;
+    --blue: #1565a8;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -32,7 +48,9 @@
     color: var(--text);
     font-family: var(--font-serif);
     font-size: 14px;
+    font-weight: 400;
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
     height: 100vh;
     overflow: hidden;
     display: flex;
@@ -322,16 +340,17 @@
     pointer-events: none;
   }
   .overlay-rect {
-    stroke-width: 2;
-    transition: all 0.2s;
+    stroke-width: 3;
+    stroke-opacity: 1;
+    transition: fill-opacity 0.2s;
     pointer-events: all;
     cursor: pointer;
   }
   .overlay-rect.warn { stroke: #d4826a; fill: #d4826a; }
   .overlay-rect.checked { stroke: #6a9d6e; fill: #6a9d6e; }
-  .overlay-rect.normal { stroke: #6a8db0; fill: #6a8db0; opacity: 0; }
-  .overlay-rect.normal:hover { opacity: 0.3; }
-  .overlay-rect.flash { stroke: #fff; fill: #fff; opacity: 0.6 !important; }
+  .overlay-rect.normal { stroke: #6a8db0; fill: #6a8db0; stroke-opacity: 0; }
+  .overlay-rect.normal:hover { fill-opacity: 0.2; stroke-opacity: 0.6; }
+  .overlay-rect.flash { stroke: #fff; fill: #fff; fill-opacity: 0.6 !important; stroke-opacity: 1 !important; }
   .overlay-rect.manual { stroke: #6a8db0; fill: #6a8db0; }
   #drawRect {
     position: absolute;
@@ -411,6 +430,12 @@
     border-color: var(--ok);
     background: rgba(106, 157, 110, 0.05);
   }
+  .block-item.active-block {
+    border-color: var(--blue) !important;
+    background: rgba(106, 141, 176, 0.08) !important;
+    box-shadow: 0 0 0 1px var(--blue);
+  }
+  .overlay-rect.active-rect { stroke: #6a8db0; fill: #6a8db0; }
 
   .block-header {
     display: flex;
@@ -777,6 +802,137 @@
     font-family: var(--font-mono);
   }
   .highlight-item:hover { color: var(--text); }
+
+  /* ════ Light theme overrides ════ */
+  [data-theme="light"] header {
+    background: #0f3a5e;
+    border-bottom: 1px solid #082840;
+  }
+  [data-theme="light"] .logo { color: #74c0e0; }
+  [data-theme="light"] .logo span { color: #3a7a9e; }
+  [data-theme="light"] .header-path { color: #9ad0ea; }
+  [data-theme="light"] #langBtn,
+  [data-theme="light"] #themeBtn {
+    border-color: rgba(255,255,255,0.6) !important;
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.12) !important;
+  }
+  [data-theme="light"] #langBtn:hover,
+  [data-theme="light"] #themeBtn:hover {
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+    background: rgba(255,255,255,0.28) !important;
+  }
+  [data-theme="light"] .sidebar {
+    background: #f5fafd;
+    border-right-color: #bdd0e0;
+  }
+  [data-theme="light"] .sidebar-header {
+    background: #dceef8;
+    border-bottom-color: #bdd0e0;
+  }
+  [data-theme="light"] .sidebar-title { color: #1e4060; font-weight: 700; letter-spacing: 0.12em; }
+  [data-theme="light"] .btn-icon { border-color: #bdd0e0; color: #1e4060; }
+  [data-theme="light"] .btn-icon:hover { border-color: #1565a8; color: #1565a8; }
+  [data-theme="light"] .project-item:hover { background: #e4f0f8; }
+  [data-theme="light"] .project-item.active { background: #d4e8f6; border-left-color: #1565a8; }
+  [data-theme="light"] .project-name { color: #0a1929; font-weight: 600; }
+  [data-theme="light"] .project-meta { color: #3a6a8e; }
+  [data-theme="light"] .progress-bar { background: #bdd0e0; }
+  [data-theme="light"] .progress-fill { background: #1565a8; }
+  [data-theme="light"] .project-toolbar { background: #f0f8fd; border-bottom-color: #bdd0e0; }
+  [data-theme="light"] .project-toolbar-title { color: #0a1929; font-weight: 700; }
+  [data-theme="light"] .btn {
+    background: #ffffff;
+    border-color: #96b4ca;
+    color: #1e4060;
+    font-weight: 500;
+  }
+  [data-theme="light"] .btn:hover { border-color: #1565a8; color: #0a1929; background: #e4f0f8; }
+  [data-theme="light"] .btn-primary { background: #1565a8; border-color: #0d4d8a; color: #fff; }
+  [data-theme="light"] .btn-primary:hover { background: #0d4d8a; }
+  [data-theme="light"] .btn-danger { border-color: #c0392b; color: #c0392b; background: #fff; }
+  [data-theme="light"] .btn-danger:hover { background: #c0392b; color: #fff; }
+  [data-theme="light"] .page-panel { background: #f5fafd; border-right-color: #bdd0e0; }
+  [data-theme="light"] .page-panel-header {
+    background: #dceef8;
+    border-bottom-color: #bdd0e0;
+    color: #1e4060;
+    font-weight: 700;
+  }
+  [data-theme="light"] .page-item:hover { background: #e4f0f8; }
+  [data-theme="light"] .page-item.active { background: #d4e8f6; border-left-color: #1565a8; }
+  [data-theme="light"] .page-item-name { color: #0a1929; font-weight: 500; }
+  [data-theme="light"] .page-item-status { color: #3a6a8e; }
+  [data-theme="light"] .drag-handle { color: #96b4ca; }
+  [data-theme="light"] .image-pane { background: #d0e4f0; }
+  [data-theme="light"] .image-wrapper { border-color: #96b4ca; }
+  [data-theme="light"] .ocr-pane { background: #f5fafd; border-left-color: #bdd0e0; }
+  [data-theme="light"] .ocr-pane-header { background: #dceef8; border-bottom-color: #bdd0e0; }
+  [data-theme="light"] .ocr-pane-title { color: #1e4060; font-weight: 700; }
+  [data-theme="light"] .threshold-control { color: #3a6a8e; }
+  [data-theme="light"] .threshold-input {
+    background: #ffffff;
+    border-color: #96b4ca;
+    color: #0a1929;
+  }
+  [data-theme="light"] .block-item { background: #ffffff; border-color: #bdd0e0; }
+  [data-theme="light"] .block-item:hover { border-color: #96b4ca; box-shadow: 0 1px 4px rgba(21,101,168,0.1); }
+  [data-theme="light"] .block-item.warn { border-color: #e05040; background: #fff8f7; }
+  [data-theme="light"] .block-item.checked { border-color: #2a9a50; background: #f2fbf5; }
+  [data-theme="light"] .block-id { background: #dceef8; color: #1e4060; font-weight: 600; }
+  [data-theme="light"] .block-conf.conf-ok { color: #1a7a3c; }
+  [data-theme="light"] .block-conf.conf-warn { color: #c0392b; }
+  [data-theme="light"] .block-text { color: #0a1929; font-weight: 400; }
+  [data-theme="light"] .block-text:focus { background: #f0f8fd; }
+  [data-theme="light"] .block-check { accent-color: #1565a8; }
+  [data-theme="light"] .warn-summary { border-top-color: #bdd0e0; color: #3a6a8e; background: #f0f8fd; }
+  [data-theme="light"] .warn-count { color: #c0392b; }
+  [data-theme="light"] .highlight-list { background: #f0f8fd; border-top-color: #bdd0e0; }
+  [data-theme="light"] .highlight-title { color: #3a6a8e; }
+  [data-theme="light"] .highlight-item { color: #c0392b; }
+  [data-theme="light"] .text-preview-panel { background: #f0f8fd; border-top-color: #bdd0e0; }
+  [data-theme="light"] .text-preview-header { border-bottom-color: #bdd0e0; }
+  [data-theme="light"] .text-preview-header:hover { background: #dceef8; }
+  [data-theme="light"] .text-preview-title { color: #1e4060; font-weight: 600; }
+  [data-theme="light"] .text-preview-textarea {
+    background: #ffffff;
+    border-color: #bdd0e0;
+    color: #0a1929;
+  }
+  [data-theme="light"] .resizer { background: #bdd0e0; }
+  [data-theme="light"] .resizer:hover, [data-theme="light"] .resizer.dragging { background: #1565a8; }
+  [data-theme="light"] .resizer-horizontal { background: #bdd0e0; }
+  [data-theme="light"] .resizer-horizontal:hover { background: #1565a8; }
+  [data-theme="light"] .modal-overlay { background: rgba(10,25,41,0.55); }
+  [data-theme="light"] .modal {
+    background: #ffffff;
+    border-color: #96b4ca;
+    box-shadow: 0 8px 32px rgba(10,25,41,0.18);
+  }
+  [data-theme="light"] .modal-title { color: #1565a8; font-weight: 700; }
+  [data-theme="light"] .form-label { color: #1e4060; font-weight: 600; }
+  [data-theme="light"] .form-input {
+    background: #f5fafd;
+    border-color: #96b4ca;
+    color: #0a1929;
+  }
+  [data-theme="light"] .form-input:focus { border-color: #1565a8; }
+  [data-theme="light"] .export-preview-area { background: #f5fafd; border-color: #bdd0e0; color: #0a1929; }
+  [data-theme="light"] .separator-input { background: #f5fafd; border-color: #96b4ca; color: #0a1929; }
+  [data-theme="light"] .toggle-row { color: #1e4060; }
+  [data-theme="light"] .dot-done { background: #1a7a3c; }
+  [data-theme="light"] .dot-pending { background: #1565a8; }
+  [data-theme="light"] .dot-none { background: #96b4ca; }
+  [data-theme="light"] .toast { background: #ffffff; border-color: #96b4ca; color: #0a1929; }
+  [data-theme="light"] .toast.success { border-color: #1a7a3c; }
+  [data-theme="light"] .toast.error { border-color: #c0392b; }
+  [data-theme="light"] .upload-zone { border-color: #96b4ca; color: #3a6a8e; }
+  [data-theme="light"] .upload-zone:hover { border-color: #1565a8; color: #1e4060; }
+  [data-theme="light"] .ocr-status { color: #3a6a8e; }
+  [data-theme="light"] .empty-state { color: #3a6a8e; }
+  [data-theme="light"] ::-webkit-scrollbar-thumb { background: #96b4ca; }
+
 </style>
 </head>
 <body>
@@ -788,6 +944,7 @@
           style="margin-left:auto;background:none;border:1px solid var(--border2);color:var(--text2);
                  padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px;font-family:var(--font-mono);
                  letter-spacing:0.05em">EN</button>
+  <button onclick="toggleTheme()" id="themeBtn" style="background:none;border:1px solid var(--border2);color:var(--text2);padding:3px 8px;border-radius:3px;cursor:pointer;font-size:13px;line-height:1">🌙</button>
 </header>
 
 <div class="layout">
@@ -834,7 +991,7 @@
     <div class="modal-title">新規プロジェクト</div>
     <div class="form-group">
       <label class="form-label" id="labelNewName">プロジェクト名</label>
-      <input class="form-input" id="newProjectName" placeholder="例: 推命書_明治期" />
+      <input class="form-input" id="newProjectName" placeholder="例: タイトル" />
     </div>
     <div class="form-group">
       <label class="form-label" id="labelNewDesc">説明（任意）</label>
@@ -866,7 +1023,81 @@
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="cancelManualBlock()">キャンセル</button>
-      <button class="btn btn-primary" onclick="confirmManualBlock()">' + (lang==='ja'?'追加':'Add') + '</button>
+      <button class="btn btn-primary" onclick="confirmManualBlock()" id="btnManualBlockAdd">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add File Modal -->
+<div class="modal-overlay" id="addFileModal">
+  <div class="modal">
+    <div class="modal-title">ファイルを追加</div>
+
+    <!-- Drop Zone -->
+    <div id="addFileDropZone" style="
+      border: 2px dashed var(--border2);
+      border-radius: 6px;
+      padding: 28px 16px;
+      text-align: center;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    "
+    ondragover="event.preventDefault(); this.style.borderColor='var(--accent)'"
+    ondragleave="this.style.borderColor='var(--border2)'"
+    ondrop="handleAddFileDrop(event)"
+    onclick="document.getElementById('addFileInput').click()"
+    >
+      <div style="font-size:24px;margin-bottom:8px;opacity:0.4">⊕</div>
+      <div style="font-size:12px;color:var(--text2)">ここにドロップ、またはクリックして選択</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:6px" id="addFileImgNote">画像: PNG / JPG / JPEG / TIFF / JP2 / BMP</div>
+      <div id="addFilePdfNote" style="font-size:10px;color:var(--text3);margin-top:2px;display:none">PDF: ページ数が多い場合、変換に時間がかかります</div>
+    </div>
+
+    <!-- Hidden inputs -->
+    <input type="file" id="addFileInput" accept=".png,.jpg,.jpeg,.tiff,.tif,.jp2,.bmp" multiple style="display:none" onchange="handleAddFileInput(event)">
+    <input type="file" id="addPdfInput" accept=".pdf" style="display:none" onchange="handleAddPdfInput(event)">
+    <!-- Paste Button (always visible) -->
+    <div style="margin-bottom:12px">
+      <button class="btn" id="addFilePasteBtn" style="width:100%" onclick="pasteImageFromClipboard()"></button>
+    </div>
+
+    <!-- Image Button (always visible) -->
+    <div style="margin-bottom:12px">
+      <button class="btn" id="addFileImgBtnButton" style="width:100%" onclick="document.getElementById('addFileInput').click()"></button>
+    </div>
+
+    <!-- PDF Button (v2 only) -->
+    <div id="addFilePdfBtn" style="display:none;margin-bottom:12px">
+      <button class="btn" style="width:100%" onclick="document.getElementById('addPdfInput').click()">
+        📄 PDFを追加（別途選択）
+      </button>
+    </div>
+
+    <!-- Progress -->
+    <div id="addFileProgress" style="display:none;font-size:11px;color:var(--text2);margin-bottom:12px;font-family:var(--font-mono)"></div>
+
+    <div class="modal-actions">
+      <button class="btn" onclick="closeModal('addFileModal')">閉じる</button>
+    </div>
+  </div>
+</div>
+
+<!-- Figure Crop Modal -->
+<div class="modal-overlay" id="figureCropModal">
+  <div class="modal">
+    <div class="modal-title">図表を追加</div>
+    <div class="form-group">
+      <label class="form-label">タイトル（ファイル名になります）</label>
+      <input class="form-input" id="figureTitleInput" placeholder="例: 図1_新聞記事写真" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">キャプション（任意）</label>
+      <textarea class="form-input" id="figureCaptionInput" rows="3" placeholder="例: 昭和60年5月5日 東京新聞" style="resize:vertical;line-height:1.8"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="cancelFigureCrop()">キャンセル</button>
+      <button class="btn btn-primary" onclick="confirmFigureCrop()">追加</button>
     </div>
   </div>
 </div>
@@ -975,6 +1206,7 @@ const i18n = {
     checkThreshold: '閾値以上を一括OK',
     deleteAll: '全て削除',
     addRange: '＋ 範囲指定追加',
+    addCrop: '＋ 図表クロップ',
     warnItems: (n) => `⚠ 要確認 ${n}件`,
     warnCount: (n) => `${n}件要確認`,
     vertical: '縦',
@@ -1020,6 +1252,14 @@ const i18n = {
     toastExportDone: '出力完了',
     toastExportError: '出力エラー',
     toastOcrError: (m) => `OCRエラー: ${m}`,
+    addFileTitle: 'ファイルを追加',
+    addFileDropHint: 'ここにドロップ、またはクリックして選択',
+    addFileImgNote: '画像: PNG / JPG / JPEG / TIFF / JP2 / BMP',
+    addFilePdfNote: 'PDF: ページ数が多い場合、変換に時間がかかります',
+    addFilePdfBtn: '📄 PDFを追加（別途選択）',
+    addFileClose: '閉じる',
+    addFileImgBtn: '🖼 画像を追加（別途選択）',
+    addFilePasteBtn: '📋 クリップボードから貼り付け',
   },
   en: {
     newProject: 'New Project',
@@ -1043,6 +1283,7 @@ const i18n = {
     checkThreshold: 'Check Above Threshold',
     deleteAll: 'Delete All',
     addRange: '＋ Add Region',
+    addCrop: '＋ Crop Figure',
     warnItems: (n) => `⚠ Review Required: ${n}`,
     warnCount: (n) => `${n} to review`,
     vertical: 'V',
@@ -1088,6 +1329,14 @@ Related OCR data will also be deleted.`,
     toastExportDone: 'Export complete',
     toastExportError: 'Export error',
     toastOcrError: (m) => `OCR error: ${m}`,
+    addFileTitle: 'Add Files',
+    addFileDropHint: 'Drop here or click to select',
+    addFileImgNote: 'Images: PNG / JPG / JPEG / TIFF / JP2 / BMP',
+    addFilePdfNote: 'PDF: Large files may take time to convert',
+    addFilePdfBtn: '📄 Add PDF (select separately)',
+    addFileClose: 'Close',
+    addFileImgBtn: '🖼 Add Images (select separately)',
+    addFilePasteBtn: '📋 Paste from Clipboard',
   },
 };
 
@@ -1096,6 +1345,14 @@ function t(key, ...args) {
   const val = i18n[lang][key];
   return typeof val === 'function' ? val(...args) : (val || key);
 }
+function toggleTheme() {
+  const html = document.documentElement;
+  const isLight = html.getAttribute('data-theme') === 'light';
+  html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  document.getElementById('themeBtn').textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('ocr_theme', isLight ? 'dark' : 'light');
+}
+
 function toggleLang() {
   lang = lang === 'ja' ? 'en' : 'ja';
   localStorage.setItem('ocr_lang', lang);
@@ -1146,6 +1403,25 @@ function updateModals() {
   // Placeholders
   const manualTextarea = document.getElementById('manualBlockText');
   if (manualTextarea) manualTextarea.placeholder = t('textPlaceholder');
+  // addFileModal
+  const addFileTitle = document.querySelector('#addFileModal .modal-title');
+  if (addFileTitle) addFileTitle.textContent = t('addFileTitle');
+  const addFileDropHint = document.querySelector('#addFileDropZone div:nth-child(2)');
+  if (addFileDropHint) addFileDropHint.textContent = t('addFileDropHint');
+  const addFileImgNote = document.getElementById('addFileImgNote');
+  if (addFileImgNote) addFileImgNote.textContent = t('addFileImgNote');
+  const addFilePdfNoteEl = document.getElementById('addFilePdfNote');
+  if (addFilePdfNoteEl) addFilePdfNoteEl.textContent = t('addFilePdfNote');
+  const addFilePdfBtnEl = document.querySelector('#addFilePdfBtn button');
+  if (addFilePdfBtnEl) addFilePdfBtnEl.textContent = t('addFilePdfBtn');
+  const addFileCloseBtn = document.querySelector('#addFileModal .modal-actions .btn');
+  if (addFileCloseBtn) addFileCloseBtn.textContent = t('addFileClose');
+  const addFilePasteBtnEl = document.getElementById('addFilePasteBtn');
+  if (addFilePasteBtnEl) addFilePasteBtnEl.textContent = t('addFilePasteBtn');
+  const addFileImgBtnEl = document.getElementById('addFileImgBtnButton');
+  if (addFileImgBtnEl) addFileImgBtnEl.textContent = t('addFileImgBtn');
+  const btnManualBlockAdd = document.getElementById('btnManualBlockAdd');
+  if (btnManualBlockAdd) btnManualBlockAdd.textContent = lang === 'ja' ? '追加' : 'Add';
 }
 
 let state = {
@@ -1158,6 +1434,7 @@ let state = {
   threshold: 0.9,
   dragSrcIndex: null,
   overlayOpacity: 0.35,
+  activeBlockId: null,
 };
 
 // ── Init placeholder (moved to end) ──
@@ -1217,10 +1494,7 @@ function renderProjectView() {
     <div class="project-toolbar">
       <span class="project-toolbar-title">${state.currentProject}</span>
       <button class="btn" onclick="openEditProjectModal()">${t('edit')}</button>
-      <label class="btn" style="cursor:pointer">
-        ${t('addImage')}
-        <input type="file" accept="image/*" multiple style="display:none" onchange="uploadImagesFromInput(event)">
-      </label>
+      <button class="btn" onclick="openAddFileModal()">${t('addImage')}</button>
       <button class="btn btn-primary" onclick="runOcrAll()">${t('runOcrAll')}</button>
       <button class="btn" onclick="openExportModal()">${t('export')}</button>
       <button class="btn btn-danger" onclick="deleteProject()">${t('delete')}</button>
@@ -1410,6 +1684,7 @@ function renderEditor() {
       <button class="btn" style="font-size:11px;padding:3px 8px" onclick="checkAboveThreshold()">${t('checkThreshold')}</button>
       <button class="btn btn-danger" style="font-size:11px;padding:3px 8px" onclick="deleteAllBlocks()">${t('deleteAll')}</button>
       <button class="btn" id="drawModeBtn" style="font-size:11px;padding:3px 8px;margin-left:auto" onclick="toggleDrawMode()">${t('addRange')}</button>
+      <button class="btn" id="cropModeBtn" style="font-size:11px;padding:3px 8px" onclick="toggleCropMode()">${t('addCrop')}</button>
     </div>
     <div class="block-list" id="blockList"></div>
     ${warnBlocks.length > 0 ? `
@@ -1436,6 +1711,7 @@ function renderBlockList() {
   const el = document.getElementById('blockList');
   if (!el) return;
   const blocks = state.pageData.ocr.contents?.[0] || [];
+  const lastIdx = blocks.length - 1;
 
   el.innerHTML = blocks.map((block, i) => {
     const bid = String(block.id);
@@ -1445,46 +1721,67 @@ function renderBlockList() {
     const conf = ov.confidence !== undefined ? ov.confidence : (block._confidence !== undefined ? block._confidence : (block.confidence || 1));
     const isChecked = ov.checked !== undefined ? ov.checked : (block._checked || false);
     const isWarn = conf < state.threshold && !isChecked;
+    const isVert = block.isVertical === 'true' || block.isVertical === true;
+    const isActive = state.activeBlockId === block.id;
 
     let cls = '';
-    if (isChecked) cls = 'checked';
+    if (isActive) cls = 'active-block';
+    else if (isChecked) cls = 'checked';
     else if (isWarn) cls = 'warn';
 
     return `
     <div class="block-item ${cls}" id="block-${block.id}"
-         draggable="true"
          data-block-index="${i}"
-         ondragstart="blockDragStart(event, ${i})"
-         ondragover="blockDragOver(event)"
-         ondrop="blockDragDrop(event, ${i})"
-         ondragleave="blockDragLeave(event)">
+         onclick="setActiveBlock(${block.id})">
       <div class="block-header">
-        <span class="drag-handle" style="margin-right:4px;font-size:10px;cursor:grab">⠿</span>
+        <!-- ↑↓ 移動ボタン -->
+        <span style="display:flex;flex-direction:column;gap:1px;margin-right:4px;flex-shrink:0">
+          <button ${i===0?'disabled':''} onclick="event.stopPropagation();moveBlockUpDown(${block.id},-1)"
+            style="background:none;border:1px solid var(--border2);color:${i===0?'var(--text3)':'var(--text2)'};
+                   cursor:${i===0?'default':'pointer'};width:16px;height:13px;border-radius:2px;
+                   font-size:8px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center"
+            title="${lang==='ja'?'上へ移動':'Move up'}">▲</button>
+          <button ${i===lastIdx?'disabled':''} onclick="event.stopPropagation();moveBlockUpDown(${block.id},1)"
+            style="background:none;border:1px solid var(--border2);color:${i===lastIdx?'var(--text3)':'var(--text2)'};
+                   cursor:${i===lastIdx?'default':'pointer'};width:16px;height:13px;border-radius:2px;
+                   font-size:8px;line-height:1;padding:0;display:flex;align-items:center;justify-content:center"
+            title="${lang==='ja'?'下へ移動':'Move down'}">▼</button>
+        </span>
         <span class="block-id">#${block.id}</span>
         <span class="block-conf ${isWarn ? 'conf-warn' : 'conf-ok'}">${conf.toFixed(3)}</span>
-        ${block.isVertical === 'true' ? '<span style="font-size:9px;color:var(--text3)">縦</span>' : ''}
-        ${block.manual ? '<span style="font-size:9px;color:var(--blue)">手動</span>' : ''}
+        <!-- 文字方向トグル -->
+        <button onclick="event.stopPropagation();toggleBlockVertical(${block.id})"
+          style="background:none;border:1px solid var(--border2);cursor:pointer;
+                 font-size:9px;padding:1px 5px;border-radius:2px;line-height:1.4;
+                 color:${isVert ? 'var(--accent)' : 'var(--text3)'};
+                 border-color:${isVert ? 'var(--accent2)' : 'var(--border2)'}"
+          title="${lang==='ja'?'文字方向を切り替え（縦↔横）':'Toggle writing direction (V↔H)'}">
+          ${isVert ? (lang==='ja'?'縦':'V') : (lang==='ja'?'横':'H')}
+        </button>
+        ${block.manual ? `<span style="font-size:9px;color:var(--blue)">${lang==='ja'?'手動':'manual'}</span>` : ''}
         <span style="display:flex;align-items:center;gap:2px;margin-left:4px">
           <span style="font-size:9px;color:var(--text3)">→#</span>
           <input type="number" min="0" value="${block.id}"
             style="width:36px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);
                    font-family:var(--font-mono);font-size:10px;padding:1px 3px;border-radius:2px;text-align:center"
-            title="移動先の番号を入力してEnter"
+            title="${lang==='ja'?'移動先の番号を入力してEnter':'Enter target position and press Enter'}"
             onkeydown="if(event.key==='Enter') moveBlockTo(${block.id}, parseInt(this.value))"
             onblur="this.value=${block.id}"
             onclick="event.stopPropagation()">
         </span>
-        <button onclick="toggleParaBreak(${block.id})"
+        <button onclick="event.stopPropagation();toggleParaBreak(${block.id})"
                 style="background:none;border:none;cursor:pointer;font-size:13px;padding:0 2px;line-height:1;
                        color:${ov.paragraph_break ? '#c8a96e' : 'var(--text3)'}"
                 title="${ov.paragraph_break ? (lang==='ja'?'段落区切りを解除':'Remove paragraph break') : (lang==='ja'?'ここで段落区切り':'Paragraph break here')}">¶</button>
         <input type="checkbox" class="block-check" ${isChecked ? 'checked' : ''}
-               onchange="toggleCheck(${block.id}, this.checked)" title="確認済み">
-        <button onclick="deleteBlock(${block.id})" 
+               onchange="toggleCheck(${block.id}, this.checked)" title="${lang==='ja'?'確認済み':'Confirmed'}"
+               onclick="event.stopPropagation()">
+        <button onclick="event.stopPropagation();deleteBlock(${block.id})"
                 style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:0 2px;line-height:1"
                 title="${t('blockDelete')}">×</button>
       </div>
-      <div class="block-text" contenteditable="true" 
+      <div class="block-text" contenteditable="true"
+           onfocus="setActiveBlock(${block.id})"
            onblur="saveText(${block.id}, this.innerText)"
            id="text-${block.id}">${text}</div>
     </div>`;
@@ -1536,52 +1833,75 @@ async function deleteBlock(blockId) {
   toast(t('toastBlockDeleted'), '');
 }
 
-// ── Block Drag & Drop ────────────────────────────────────────────────────────
-let blockDragSrc = null;
-
-function blockDragStart(e, index) {
-  blockDragSrc = index;
-  e.dataTransfer.effectAllowed = 'move';
-  e.stopPropagation(); // ページD&Dと干渉しないように
-}
-
-function blockDragOver(e) {
-  e.preventDefault();
-  e.stopPropagation();
-  e.currentTarget.style.borderTopColor = 'var(--accent)';
-}
-
-function blockDragLeave(e) {
-  e.currentTarget.style.borderTopColor = '';
-}
-
-async function blockDragDrop(e, targetIndex) {
-  e.preventDefault();
-  e.stopPropagation();
-  e.currentTarget.style.borderTopColor = '';
-  if (blockDragSrc === null || blockDragSrc === targetIndex) return;
-
+// ── Block Move Up/Down ────────────────────────────────────────────────────────
+async function moveBlockUpDown(blockId, direction) {
   const blocks = state.pageData.ocr.contents[0];
-  const [moved] = blocks.splice(blockDragSrc, 1);
-  blocks.splice(targetIndex, 0, moved);
-  blockDragSrc = null;
+  const srcIdx = blocks.findIndex(b => b.id === blockId);
+  if (srcIdx === -1) return;
+  const destIdx = srcIdx + direction;
+  if (destIdx < 0 || destIdx >= blocks.length) return;
 
-  // IDを配列順に0から振り直す
+  const [moved] = blocks.splice(srcIdx, 1);
+  blocks.splice(destIdx, 0, moved);
+
   renumberBlocks();
 
-  // サーバー側のJSONも更新
   await fetch(
     `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/reorder`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ blocks: blocks }),
+      body: JSON.stringify({ blocks: state.pageData.ocr.contents[0] }),
     }
   );
-
   await persistOverlay();
   renderBlockList();
   renderOverlay();
+  setTimeout(() => {
+    setActiveBlock(destIdx);
+    const el = document.getElementById(`block-${destIdx}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 30);
+}
+
+// ── Active Block Highlight ────────────────────────────────────────────────────
+function setActiveBlock(blockId) {
+  state.activeBlockId = blockId;
+  document.querySelectorAll('.block-item.active-block').forEach(el => el.classList.remove('active-block'));
+  const el = document.getElementById(`block-${blockId}`);
+  if (el) el.classList.add('active-block');
+  // SVGオーバーレイのアクティブ枠を更新
+  document.querySelectorAll('.overlay-rect.active-rect').forEach(r => {
+    r.classList.remove('active-rect');
+    r.setAttribute('fill-opacity', r.classList.contains('normal') ? 0 : state.overlayOpacity);
+    r.setAttribute('stroke-opacity', r.classList.contains('normal') ? 0 : 1);
+  });
+  const rect = document.getElementById(`rect-${blockId}`);
+  if (rect) {
+    rect.classList.add('active-rect');
+    rect.setAttribute('fill-opacity', Math.min(1, state.overlayOpacity + 0.35));
+    rect.setAttribute('stroke-opacity', 1);
+  }
+}
+
+// ── Toggle Block Writing Direction ───────────────────────────────────────────
+async function toggleBlockVertical(blockId) {
+  const blocks = state.pageData.ocr.contents[0];
+  const block = blocks.find(b => b.id === blockId);
+  if (!block) return;
+  const isVert = block.isVertical === 'true' || block.isVertical === true;
+  block.isVertical = isVert ? 'false' : 'true';
+
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/reorder`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocks: state.pageData.ocr.contents[0] }),
+    }
+  );
+  renderBlockList();
+  setTimeout(() => setActiveBlock(blockId), 30);
 }
 
 async function moveBlockTo(blockId, targetPos) {
@@ -1630,8 +1950,7 @@ function renumberBlocks() {
 function scrollToBlock(id) {
   const el = document.getElementById(`block-${id}`);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  // 画像上の対応する枠を点滅
-  flashOverlayRect(id);
+  setActiveBlock(id);
 }
 
 function flashOverlayRect(blockId) {
@@ -1670,12 +1989,14 @@ function renderOverlay() {
     const conf = block.confidence || 1;
     const isChecked = ov.checked || false;
     const isWarn = conf < state.threshold && !isChecked;
-    const cls = isChecked ? 'checked' : (isWarn ? 'warn' : 'normal');
+    const isActive = state.activeBlockId === block.id;
+    const cls = isActive ? 'active-rect' : (isChecked ? 'checked' : (isWarn ? 'warn' : 'normal'));
 
-    const op = cls === 'normal' ? 0 : state.overlayOpacity;
+    const fillOp = isActive ? Math.min(1, state.overlayOpacity + 0.35) : (cls === 'normal' ? 0 : state.overlayOpacity);
+    const strokeOp = cls === 'normal' ? 0 : 1;
     return `<rect id="rect-${block.id}" class="overlay-rect ${cls}"
       x="${x}" y="${y}" width="${w}" height="${h}"
-      opacity="${op}"
+      fill-opacity="${fillOp}" stroke-opacity="${strokeOp}"
       onclick="scrollToBlock(${block.id})" />`;
   }).join('');
 }
@@ -1740,18 +2061,122 @@ function updateOverlayOpacity(val) {
   if (!svg) return;
   svg.querySelectorAll('.overlay-rect').forEach(rect => {
     if (!rect.classList.contains('normal')) {
-      rect.setAttribute('opacity', state.overlayOpacity);
+      rect.setAttribute('fill-opacity', state.overlayOpacity);
+      rect.setAttribute('stroke-opacity', '1');
     }
   });
 }
 
 // ── 範囲指定手動追加 ──────────────────────────────────────────────────────────
+let cropState = { active: false, drawing: false, startX:0, startY:0, startPX:0, startPY:0, pendingBB: null };
+
 let drawState = {
   active: false,  // 描画モードON/OFF
   drawing: false, // ドラッグ中
   startX: 0, startY: 0,
   pendingBB: null, // 確定前のboundingBox（画像座標系）
 };
+
+// ── 図表クロップモード ──────────────────────────────────────────
+function toggleCropMode() {
+  if (drawState.active) toggleDrawMode();
+  cropState.active = !cropState.active;
+  const btn = document.getElementById('cropModeBtn');
+  const wrapper = document.getElementById('imageWrapper');
+  if (btn) { btn.style.borderColor = cropState.active ? 'var(--ok)' : ''; btn.style.color = cropState.active ? 'var(--ok)' : ''; }
+  if (wrapper) wrapper.classList.toggle('drawing', cropState.active);
+  if (!cropState.active) { const dr = document.getElementById('drawRect'); if (dr) dr.style.display = 'none'; }
+}
+
+function cropDrawStart(e) {
+  if (!cropState.active) return;
+  e.preventDefault();
+  const coords = getImageCoords(e);
+  if (!coords) return;
+  cropState.drawing = true;
+  cropState.startX = coords.x; cropState.startY = coords.y;
+  cropState.startPX = coords.px; cropState.startPY = coords.py;
+  const dr = document.getElementById('drawRect');
+  if (dr) {
+    dr.style.display = 'block';
+    dr.style.borderColor = 'var(--ok)';
+    dr.style.background = 'rgba(106,157,110,0.1)';
+    dr.style.left = coords.px + 'px'; dr.style.top = coords.py + 'px';
+    dr.style.width = '0'; dr.style.height = '0';
+  }
+}
+
+function cropDrawMove(e) {
+  if (!cropState.active || !cropState.drawing) return;
+  e.preventDefault();
+  const coords = getImageCoords(e);
+  if (!coords) return;
+  const dr = document.getElementById('drawRect');
+  if (!dr) return;
+  dr.style.left = Math.min(cropState.startPX, coords.px) + 'px';
+  dr.style.top = Math.min(cropState.startPY, coords.py) + 'px';
+  dr.style.width = Math.abs(coords.px - cropState.startPX) + 'px';
+  dr.style.height = Math.abs(coords.py - cropState.startPY) + 'px';
+}
+
+function cropDrawEnd(e) {
+  if (!cropState.active || !cropState.drawing) return;
+  e.preventDefault();
+  cropState.drawing = false;
+  const coords = getImageCoords(e);
+  if (!coords) return;
+  const dr = document.getElementById('drawRect');
+  if (dr) dr.style.display = 'none';
+  const x1 = Math.min(cropState.startX, coords.x), y1 = Math.min(cropState.startY, coords.y);
+  const x2 = Math.max(cropState.startX, coords.x), y2 = Math.max(cropState.startY, coords.y);
+  if (x2 - x1 < 5 || y2 - y1 < 5) return;
+  cropState.pendingBB = { x1, y1, x2, y2 };
+  document.getElementById('figureTitleInput').value = '';
+  document.getElementById('figureCaptionInput').value = '';
+  document.getElementById('figureCropModal').classList.add('open');
+  setTimeout(() => document.getElementById('figureTitleInput').focus(), 100);
+}
+
+function cancelFigureCrop() {
+  cropState.pendingBB = null;
+  closeModal('figureCropModal');
+}
+
+async function confirmFigureCrop() {
+  const title = document.getElementById('figureTitleInput').value.trim();
+  const caption = document.getElementById('figureCaptionInput').value.trim();
+  if (!title || !cropState.pendingBB) { closeModal('figureCropModal'); return; }
+  const bb = cropState.pendingBB;
+  const res = await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/crop`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ x1: bb.x1, y1: bb.y1, x2: bb.x2, y2: bb.y2, title, caption }) }
+  );
+  const data = await res.json();
+  if (!res.ok || data.error) { toast(data.error || 'クロップ失敗', 'error'); return; }
+  const blocks = state.pageData.ocr.contents[0];
+  const maxId = blocks.reduce((m, b) => Math.max(m, b.id || 0), 0);
+  const newId = maxId + 1;
+  const figureBlock = {
+    id: newId, type: 'figure', manual: true,
+    boundingBox: [[bb.x1,bb.y1],[bb.x1,bb.y2],[bb.x2,bb.y1],[bb.x2,bb.y2]],
+    text: caption ? `[${title}] ${caption}` : `[${title}]`,
+    confidence: 1.0, figure_title: title, figure_caption: caption, figure_file: data.filename,
+  };
+  blocks.push(figureBlock);
+  const ov = getOrCreateOverlay(newId);
+  ov.text = figureBlock.text; ov.checked = true; ov.confidence = 1.0; ov.manual = true;
+  await persistOverlay();
+  await fetch(
+    `/api/projects/${encodeURIComponent(state.currentProject)}/page/${encodeURIComponent(state.currentPage)}/ocr_patch`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ block: figureBlock }) }
+  );
+  cropState.pendingBB = null;
+  closeModal('figureCropModal');
+  toggleCropMode();
+  renderBlockList(); renderOverlay();
+  toast(lang === 'ja' ? `「${title}」を追加しました` : `Added "${title}"`, 'success');
+}
 
 function toggleDrawMode() {
   drawState.active = !drawState.active;
@@ -1782,6 +2207,7 @@ function getImageCoords(e) {
 }
 
 function drawStart(e) {
+  if (cropState.active) { cropDrawStart(e); return; }
   if (!drawState.active) return;
   e.preventDefault();
   const coords = getImageCoords(e);
@@ -1802,6 +2228,7 @@ function drawStart(e) {
 }
 
 function drawMove(e) {
+  if (cropState.active) { cropDrawMove(e); return; }
   if (!drawState.active || !drawState.drawing) return;
   e.preventDefault();
   const coords = getImageCoords(e);
@@ -1819,6 +2246,7 @@ function drawMove(e) {
 }
 
 function drawEnd(e) {
+  if (cropState.active) { cropDrawEnd(e); return; }
   if (!drawState.active || !drawState.drawing) return;
   e.preventDefault();
   drawState.drawing = false;
@@ -2020,8 +2448,13 @@ async function uploadImagesFromInput(e) {
 
 async function doUpload(files) {
   if (!state.currentProject) { toast('プロジェクトを選択してください', 'error'); return; }
-  const imageFiles = files.filter(f => f.type.startsWith('image/'));
+  const ALLOWED_EXTS = ['jpg','jpeg','png','tiff','tif','jp2','bmp'];
+  const imageFiles = files.filter(f => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    return ALLOWED_EXTS.includes(ext);
+  });
   if (!imageFiles.length) { toast('画像ファイルを選択してください', 'error'); return; }
+
 
   // Sort files by name before uploading
   imageFiles.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
@@ -2048,7 +2481,14 @@ document.addEventListener('drop', async (e) => {
   e.preventDefault();
   if (!state.currentProject) return;
   const files = Array.from(e.dataTransfer.files);
-  await doUpload(files);
+  if (PDF_ENABLED) {
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const pdfs = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
+    if (images.length) await doUpload(images);
+    if (pdfs.length) await doUploadPdfs(pdfs);
+  } else {
+    await doUpload(files);
+  }
 });
 
 // ── Edit Project ──────────────────────────────────────────────────────────────
@@ -2469,11 +2909,156 @@ function updateHeaderPath() {
 }
 
 // ── Init ────────────────────────────────────────────────────────────────────
+// テーマ初期化
+(function() {
+  const saved = localStorage.getItem('ocr_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';
+})();
+
 loadProjects();
 setInterval(loadProjects, 5000);
 // 言語初期化
 document.getElementById('langBtn').textContent = lang === 'ja' ? 'EN' : 'JA';
 updateModals();
+
+// ── PDF対応フラグ（Flaskから注入） ──────────────────────────────────────────
+const PDF_ENABLED = {{ pdf_enabled | tojson }};
+if (PDF_ENABLED) {
+  // ドロップゾーンにPDF説明を表示
+  const pdfNote = document.getElementById('addFilePdfNote');
+  if (pdfNote) pdfNote.style.display = '';
+  const pdfBtn = document.getElementById('addFilePdfBtn');
+  if (pdfBtn) pdfBtn.style.display = '';
+  // ファイル選択をPDFも含める
+  const input = document.getElementById('addFileInput');
+  if (input) input.accept = '.png,.jpg,.jpeg,.tiff,.tif,.jp2,.bmp,.pdf';
+}
+
+// ── Add File Modal ────────────────────────────────────────────────────────────
+// ── Clipboard Paste ───────────────────────────────────────────────────────────
+async function pasteImageFromClipboard() {
+  try {
+    const items = await navigator.clipboard.read();
+    let found = false;
+    for (const item of items) {
+      const imageType = item.types.find(t => t.startsWith('image/'));
+      if (imageType) {
+        const blob = await item.getType(imageType);
+        const ext = imageType.split('/')[1].replace('jpeg', 'jpg');
+        const filename = 'clipboard_' + Date.now() + '.' + ext;
+        const file = new File([blob], filename, { type: imageType });
+        closeModal('addFileModal');
+        await doUpload([file]);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      toast(lang === 'ja' ? 'クリップボードに画像がありません' : 'No image in clipboard', 'error');
+    }
+  } catch(e) {
+    toast(lang === 'ja' ? 'クリップボードへのアクセスが許可されていません' : 'Clipboard access denied', 'error');
+  }
+}
+
+function openAddFileModal() {
+  document.getElementById('addFileProgress').style.display = 'none';
+  document.getElementById('addFileProgress').textContent = '';
+  updateModals();
+  document.getElementById('addFileModal').classList.add('open');
+}
+
+async function handleAddFileDrop(e) {
+  e.preventDefault();
+  document.getElementById('addFileDropZone').style.borderColor = 'var(--border2)';
+  closeModal('addFileModal');
+  const files = Array.from(e.dataTransfer.files);
+  if (PDF_ENABLED) {
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const pdfs = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
+    if (images.length) await doUpload(images);
+    if (pdfs.length) await doUploadPdfs(pdfs);
+  } else {
+    await doUpload(files);
+  }
+}
+
+async function handleAddFileInput(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  closeModal('addFileModal');
+  if (PDF_ENABLED) {
+    const images = files.filter(f => f.type.startsWith('image/'));
+    const pdfs = files.filter(f => f.name.toLowerCase().endsWith('.pdf'));
+    if (images.length) await doUpload(images);
+    if (pdfs.length) await doUploadPdfs(pdfs);
+  } else {
+    await doUpload(files);
+  }
+  e.target.value = '';
+}
+
+async function handleAddPdfInput(e) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+  closeModal('addFileModal');
+  await doUploadPdfs(files);
+  e.target.value = '';
+}
+
+// ── PDF Upload ────────────────────────────────────────────────────────────────
+async function doUploadPdfs(files) {
+  if (!state.currentProject) { toast('プロジェクトを選択してください', 'error'); return; }
+  const SIZE_LIMIT = 1 * 1024 * 1024 * 1024; // 1GB
+
+  for (const file of files) {
+    if (file.size > SIZE_LIMIT) {
+      toast(`${file.name}: ファイルサイズが1GBを超えています`, 'error');
+      continue;
+    }
+    toast(`PDF変換中: ${file.name}`, '');
+    const fd = new FormData();
+    fd.append('file', file);
+    fd.append('dpi', 300);
+
+    const res = await fetch(
+      `/api/projects/${encodeURIComponent(state.currentProject)}/upload_pdf`,
+      { method: 'POST', body: fd }
+    );
+    const data = await res.json();
+    if (data.error) {
+      toast(`エラー: ${data.error}`, 'error');
+      continue;
+    }
+    // 進捗ポーリング
+    await pollPdfProgress(data.job_id);
+    await loadPages(state.currentProject);
+    await loadProjects();
+    renderPageList();
+  }
+}
+
+async function pollPdfProgress(jobId) {
+  return new Promise(resolve => {
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/pdf_progress/${encodeURIComponent(jobId)}`);
+      const data = await res.json();
+      if (data.status === 'done') {
+        clearInterval(interval);
+        toast(data.message, 'success');
+        resolve();
+      } else if (data.status === 'error') {
+        clearInterval(interval);
+        toast(`PDF変換エラー: ${data.message}`, 'error');
+        resolve();
+      } else {
+        toast('PDF変換中...', '');
+      }
+    }, 1500);
+  });
+}
 </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ from datetime import datetime
 from flask import Flask, request, jsonify, render_template, send_file
 
 app = Flask(__name__)
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Base directory for all projects
 PROJECTS_DIR = Path(os.path.expanduser("~/OCR_Projects"))
@@ -104,7 +105,9 @@ def load_page_data(project_path, page_name):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    import os
+    pdf_enabled = os.environ.get("PDF_ENABLED", "false").lower() == "true"
+    return render_template("index.html", pdf_enabled=pdf_enabled)
 
 
 @app.route("/api/projects", methods=["GET"])

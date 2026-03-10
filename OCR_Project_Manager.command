@@ -10,7 +10,16 @@ if ! python3 -c "import flask" 2>/dev/null; then
     pip3 install flask
 fi
 
-# アプリ起動
-echo "OCR Project Manager を起動します..."
+# ランチャー起動
+echo "OCR Project Manager ランチャーを起動します..."
 cd "$APP_DIR"
-python3 app.py
+python3 start.py &
+LAUNCHER_PID=$!
+
+# ランチャーの終了を待つ
+wait $LAUNCHER_PID
+
+# アプリが起動しているのでウィンドウを維持
+echo ""
+echo "アプリが起動しました。このウィンドウは閉じても構いません。"
+read -p "Enterで閉じる..."
