@@ -1873,8 +1873,9 @@ function setActiveBlock(blockId) {
   // SVGオーバーレイのアクティブ枠を更新
   document.querySelectorAll('.overlay-rect.active-rect').forEach(r => {
     r.classList.remove('active-rect');
-    r.setAttribute('fill-opacity', r.classList.contains('normal') ? 0 : state.overlayOpacity);
-    r.setAttribute('stroke-opacity', r.classList.contains('normal') ? 0 : 1);
+    const isNormal = !r.classList.contains('warn') && !r.classList.contains('checked');
+    r.setAttribute('fill-opacity', isNormal ? 0 : state.overlayOpacity);
+    r.setAttribute('stroke-opacity', isNormal ? 0 : 1);
   });
   const rect = document.getElementById(`rect-${blockId}`);
   if (rect) {
@@ -1941,6 +1942,10 @@ function renumberBlocks() {
     // overlayのキーを新IDに移し替え
     if (state.overlay[oldId]) {
       newOverlay[String(newId)] = state.overlay[oldId];
+    }
+    // activeBlockIdも新IDに追従させる
+    if (state.activeBlockId === block.id) {
+      state.activeBlockId = newId;
     }
     block.id = newId;
   });
