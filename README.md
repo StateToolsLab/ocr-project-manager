@@ -14,6 +14,8 @@ Upload scanned pages, run OCR, review and correct results block by block, and ex
 
 ![Export modal](docs/screenshot_export.png)
 
+*Sample document: 「モテツボ 真面目系男子の恋愛解体新書」（キマイラ著、セルバ出版、2024）*
+
 ---
 
 ## What's New in v2
