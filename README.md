@@ -18,6 +18,14 @@ Upload scanned pages, run OCR, review and correct results block by block, and ex
 
 ---
 
+## App Icon
+
+The OSS app icon is available at `docs/images/icon_opm_oss.png`.
+
+You may use it for repository pages, website listings, README previews, and local shortcuts related to OCR Project Manager.
+
+---
+
 ## Features
 
 ### Project Management
@@ -175,6 +183,14 @@ License: CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)
 画像のアップロード、OCR実行、結果の検証・編集、テキストの統合出力までを一つのUIで完結できます。インターネット接続不要、すべてローカルで動作します。
 
 **UIは日本語・英語に対応しています（画面右上で切り替え）。**
+
+---
+
+## アプリアイコン
+
+OSS版のアプリアイコンは `docs/images/icon_opm_oss.png` に配置しています。
+
+OCR Project Manager に関連するリポジトリページ、Webサイト掲載、READMEプレビュー、ローカルショートカット等で利用できます。
 
 ---
 
