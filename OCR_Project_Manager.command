@@ -1,7 +1,7 @@
 #!/bin/bash
 # OCR Project Manager 起動スクリプト
 
-APP_DIR="$HOME/OCR-Project-Manager"
+APP_DIR="$(cd "$(dirname "$0")" && pwd)"
 VENV="$APP_DIR/venv"
 PYTHON="$VENV/bin/python3"
 PIP="$VENV/bin/pip"

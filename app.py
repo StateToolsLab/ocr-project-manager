@@ -15,7 +15,8 @@ app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 
 # Base directory for all projects
-PROJECTS_DIR = Path(os.path.expanduser("~/OCR_Projects"))
+APP_DIR = Path(__file__).resolve().parent
+PROJECTS_DIR = APP_DIR.parent / "OCR_Projects"
 PROJECTS_DIR.mkdir(exist_ok=True)
 
 # NDLOCR path
@@ -1106,5 +1107,5 @@ if __name__ == "__main__":
     import webbrowser
     print("OCR Project Manager 起動中...")
     print(f"プロジェクトフォルダ: {PROJECTS_DIR}")
-    threading.Timer(1.0, lambda: webbrowser.open("http://localhost:5050")).start()
-    app.run(host="127.0.0.1", port=5050, debug=False)
+    threading.Timer(1.0, lambda: webbrowser.open("http://localhost:5049")).start()
+    app.run(host="127.0.0.1", port=5049, debug=False)

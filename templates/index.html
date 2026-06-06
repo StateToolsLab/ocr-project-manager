@@ -3373,7 +3373,7 @@ function updateHeaderPath() {
 // ── Init ────────────────────────────────────────────────────────────────────
 // テーマ初期化
 (function() {
-  const saved = localStorage.getItem('ocr_theme') || 'dark';
+  const saved = localStorage.getItem('ocr_theme') || 'light';
   document.documentElement.setAttribute('data-theme', saved);
   const btn = document.getElementById('themeBtn');
   if (btn) btn.textContent = saved === 'light' ? '☀️' : '🌙';

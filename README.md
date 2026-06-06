@@ -125,7 +125,7 @@ Installs required Python libraries and creates a desktop shortcut automatically.
 Double-click OCR_Project_Manager.command on the desktop.
 
 The launcher checks your environment automatically:
-- All dependencies found: opens http://localhost:5050 directly
+- All dependencies found: opens http://localhost:5049 directly
 - Any missing: shows a setup UI with install instructions
 
 On first launch, macOS may show a security warning. Use right-click -> Open to bypass it.
@@ -293,7 +293,7 @@ chmod +x install.command
 デスクトップの OCR_Project_Manager.command をダブルクリック。
 
 起動時に依存ライブラリを自動チェックします：
-- 全て揃っている場合 → http://localhost:5050 で直接起動
+- 全て揃っている場合 → http://localhost:5049 で直接起動
 - 不足がある場合 → セットアップ画面でインストール案内
 
 初回起動時はMacのセキュリティ警告が出ます。右クリック→「開く」で起動してください。
